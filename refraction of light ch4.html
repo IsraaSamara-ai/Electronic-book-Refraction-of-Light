@@ -1,0 +1,3124 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>انكسار الضوء وتطبيقاته - الصف التاسع</title>
+<link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@200;300;400;500;700;800;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<style>
+/* ========== متغيرات التصميم ========== */
+:root {
+  --bg: #F0F4FF;
+  --bg-deep: #E0E8FF;
+  --card: #FFFFFF;
+  --card-hover: #F8FAFF;
+  --text: #0F172A;
+  --text-secondary: #475569;
+  --text-muted: #94A3B8;
+  --blue: #1D4ED8;
+  --blue-light: #3B82F6;
+  --blue-glow: rgba(29,78,216,0.25);
+  --purple: #7C3AED;
+  --purple-light: #A78BFA;
+  --purple-glow: rgba(124,58,237,0.2);
+  --accent: #06B6D4;
+  --success: #10B981;
+  --danger: #EF4444;
+  --warning: #F59E0B;
+  --border: rgba(29,78,216,0.12);
+  --shadow: 0 4px 24px rgba(15,23,42,0.08);
+  --shadow-lg: 0 12px 48px rgba(15,23,42,0.12);
+  --radius: 16px;
+  --radius-sm: 10px;
+  --radius-xs: 6px;
+  --glass: rgba(255,255,255,0.7);
+  --glass-border: rgba(255,255,255,0.4);
+}
+[data-theme="dark"] {
+  --bg: #070B14;
+  --bg-deep: #0D1321;
+  --card: #111827;
+  --card-hover: #1A2332;
+  --text: #E5E7EB;
+  --text-secondary: #9CA3AF;
+  --text-muted: #6B7280;
+  --blue: #3B82F6;
+  --blue-light: #60A5FA;
+  --blue-glow: rgba(59,130,246,0.3);
+  --purple: #A78BFA;
+  --purple-light: #C4B5FD;
+  --purple-glow: rgba(167,139,250,0.25);
+  --border: rgba(59,130,246,0.15);
+  --shadow: 0 4px 24px rgba(0,0,0,0.3);
+  --shadow-lg: 0 12px 48px rgba(0,0,0,0.4);
+  --glass: rgba(17,24,39,0.8);
+  --glass-border: rgba(59,130,246,0.2);
+}
+
+/* ========== الأساسيات ========== */
+* { margin:0; padding:0; box-sizing:border-box; }
+html { scroll-behavior: smooth; }
+body {
+  font-family: 'Tajawal', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  overflow: hidden;
+  transition: background 0.5s, color 0.5s;
+}
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--blue-light); border-radius: 3px; }
+
+/* ========== العلامة المائية ========== */
+.watermark {
+  position: fixed;
+  top: 50%; left: 50%;
+  transform: translate(-50%, -50%) rotate(-30deg);
+  font-size: clamp(3rem, 8vw, 7rem);
+  font-weight: 900;
+  color: var(--blue);
+  opacity: 0.04;
+  pointer-events: none;
+  z-index: 9999;
+  white-space: nowrap;
+  letter-spacing: 8px;
+  user-select: none;
+}
+
+/* ========== شريط التنقل العلوي ========== */
+.topbar {
+  position: fixed; top: 0; right: 0; left: 0;
+  height: 60px;
+  background: var(--glass);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 24px;
+  z-index: 1000;
+  transition: background 0.5s;
+}
+.topbar-title {
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--blue);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.topbar-actions { display: flex; gap: 8px; align-items: center; }
+.icon-btn {
+  width: 40px; height: 40px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border);
+  background: var(--card);
+  color: var(--text);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1rem;
+  transition: all 0.3s;
+}
+.icon-btn:hover {
+  background: var(--blue);
+  color: white;
+  border-color: var(--blue);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 16px var(--blue-glow);
+}
+
+/* ========== حاوية الصفحات ========== */
+.pages-container {
+  position: fixed;
+  top: 60px; bottom: 70px;
+  right: 0; left: 0;
+  overflow: hidden;
+}
+.page {
+  position: absolute;
+  top: 0; right: 0; bottom: 0; left: 0;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: 32px;
+  opacity: 0;
+  transform: translateX(40px);
+  pointer-events: none;
+  transition: all 0.5s cubic-bezier(0.4,0,0.2,1);
+  scroll-behavior: smooth;
+}
+.page.active {
+  opacity: 1;
+  transform: translateX(0);
+  pointer-events: all;
+}
+.page.exit-left {
+  opacity: 0;
+  transform: translateX(-40px);
+}
+
+/* ========== شريط التنقل السفلي ========== */
+.bottombar {
+  position: fixed;
+  bottom: 0; right: 0; left: 0;
+  height: 70px;
+  background: var(--glass);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-top: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 24px;
+  z-index: 1000;
+  transition: background 0.5s;
+}
+.nav-btn {
+  display: flex; align-items: center; gap: 8px;
+  padding: 10px 20px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border);
+  background: var(--card);
+  color: var(--text);
+  font-family: 'Tajawal', sans-serif;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+.nav-btn:hover:not(:disabled) {
+  background: var(--blue);
+  color: white;
+  border-color: var(--blue);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 16px var(--blue-glow);
+}
+.nav-btn:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+.page-dots {
+  display: flex; gap: 6px; align-items: center;
+}
+.page-dot {
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  background: var(--text-muted);
+  cursor: pointer;
+  transition: all 0.3s;
+}
+.page-dot.active {
+  width: 24px;
+  border-radius: 4px;
+  background: var(--blue);
+}
+.page-counter {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  font-weight: 500;
+  margin-bottom: 4px;
+}
+
+/* ========== القائمة الجانبية ========== */
+.sidebar-overlay {
+  position: fixed; inset: 0;
+  background: rgba(0,0,0,0.5);
+  z-index: 2000;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s;
+}
+.sidebar-overlay.open { opacity: 1; pointer-events: all; }
+.sidebar {
+  position: fixed;
+  top: 0; right: -320px; bottom: 0;
+  width: 300px;
+  background: var(--card);
+  border-left: 1px solid var(--border);
+  z-index: 2001;
+  padding: 24px;
+  transition: right 0.4s cubic-bezier(0.4,0,0.2,1);
+  overflow-y: auto;
+}
+.sidebar.open { right: 0; }
+.sidebar-header {
+  display: flex; justify-content: space-between; align-items: center;
+  margin-bottom: 24px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid var(--border);
+}
+.sidebar-header h3 { font-size: 1.1rem; color: var(--blue); }
+.toc-item {
+  display: flex; align-items: center; gap: 12px;
+  padding: 12px 16px;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: all 0.3s;
+  margin-bottom: 4px;
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: var(--text-secondary);
+}
+.toc-item:hover, .toc-item.active {
+  background: var(--blue-glow);
+  color: var(--blue);
+}
+.toc-item .toc-num {
+  width: 28px; height: 28px;
+  border-radius: 50%;
+  background: var(--border);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 0.75rem;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+.toc-item.active .toc-num {
+  background: var(--blue);
+  color: white;
+}
+
+/* ========== صفحة الغلاف ========== */
+.cover-page {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 100%;
+  text-align: center;
+  position: relative;
+  padding: 20px;
+}
+.cover-canvas-wrap {
+  position: relative;
+  width: 100%;
+  max-width: 600px;
+  aspect-ratio: 16/10;
+  margin-bottom: 32px;
+  border-radius: var(--radius);
+  overflow: hidden;
+  box-shadow: var(--shadow-lg);
+}
+#coverCanvas {
+  width: 100%; height: 100%;
+  display: block;
+}
+.cover-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 16px;
+  border-radius: 20px;
+  background: var(--purple-glow);
+  color: var(--purple);
+  font-size: 0.85rem;
+  font-weight: 600;
+  margin-bottom: 16px;
+}
+.cover-title {
+  font-size: clamp(1.8rem, 5vw, 2.8rem);
+  font-weight: 900;
+  line-height: 1.3;
+  margin-bottom: 8px;
+  background: linear-gradient(135deg, var(--blue), var(--purple));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+.cover-subtitle {
+  font-size: 1.1rem;
+  color: var(--text-secondary);
+  margin-bottom: 32px;
+  font-weight: 300;
+}
+.cover-en-title {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  font-weight: 400;
+  letter-spacing: 1px;
+  margin-bottom: 24px;
+}
+.start-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 14px 40px;
+  border-radius: 50px;
+  background: linear-gradient(135deg, var(--blue), var(--purple));
+  color: white;
+  font-family: 'Tajawal', sans-serif;
+  font-size: 1.1rem;
+  font-weight: 700;
+  border: none;
+  cursor: pointer;
+  transition: all 0.3s;
+  box-shadow: 0 8px 32px var(--blue-glow);
+}
+.start-btn:hover {
+  transform: translateY(-3px) scale(1.03);
+  box-shadow: 0 12px 40px var(--purple-glow);
+}
+
+/* ========== بطاقات المحتوى ========== */
+.content-card {
+  background: var(--card);
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
+  padding: 28px;
+  margin-bottom: 24px;
+  box-shadow: var(--shadow);
+  transition: all 0.3s;
+}
+.content-card:hover {
+  box-shadow: var(--shadow-lg);
+  border-color: var(--blue-light);
+}
+.section-title {
+  font-size: 1.5rem;
+  font-weight: 800;
+  margin-bottom: 16px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.section-title .title-icon {
+  width: 42px; height: 42px;
+  border-radius: var(--radius-sm);
+  background: linear-gradient(135deg, var(--blue), var(--purple));
+  display: flex; align-items: center; justify-content: center;
+  color: white;
+  font-size: 1.1rem;
+  flex-shrink: 0;
+}
+.section-subtitle {
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: var(--blue);
+  margin: 20px 0 12px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.section-subtitle::before {
+  content: '';
+  width: 4px; height: 20px;
+  border-radius: 2px;
+  background: var(--purple);
+  flex-shrink: 0;
+}
+p { line-height: 1.9; margin-bottom: 12px; color: var(--text-secondary); font-size: 1rem; }
+.highlight { color: var(--blue); font-weight: 700; }
+.highlight-purple { color: var(--purple); font-weight: 700; }
+
+/* ========== المعادلات ========== */
+.formula-box {
+  background: linear-gradient(135deg, var(--blue-glow), var(--purple-glow));
+  border: 2px solid var(--blue-light);
+  border-radius: var(--radius-sm);
+  padding: 20px 24px;
+  text-align: center;
+  margin: 16px 0;
+  direction: ltr;
+}
+.formula-box .formula {
+  font-size: 1.4rem;
+  font-weight: 800;
+  color: var(--blue);
+  letter-spacing: 2px;
+}
+.formula-box .formula-label {
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+  margin-top: 6px;
+  direction: rtl;
+}
+
+/* ========== الجداول ========== */
+.data-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 16px 0;
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+  border: 1px solid var(--border);
+}
+.data-table th {
+  background: linear-gradient(135deg, var(--blue), var(--purple));
+  color: white;
+  padding: 12px 16px;
+  font-weight: 700;
+  font-size: 0.9rem;
+}
+.data-table td {
+  padding: 10px 16px;
+  border-bottom: 1px solid var(--border);
+  text-align: center;
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+}
+.data-table tr:nth-child(even) td { background: var(--bg); }
+.data-table tr:hover td { background: var(--blue-glow); }
+
+/* ========== المختبر التفاعلي ========== */
+.lab-container {
+  background: var(--card);
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
+  overflow: hidden;
+  box-shadow: var(--shadow-lg);
+}
+.lab-header {
+  padding: 16px 24px;
+  background: linear-gradient(135deg, var(--blue), var(--purple));
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.lab-header h3 { font-size: 1.1rem; font-weight: 700; }
+.lab-canvas-wrap {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 16/10;
+  background: #0A0F1E;
+  border-bottom: 1px solid var(--border);
+}
+.lab-canvas-wrap canvas {
+  width: 100%; height: 100%;
+  display: block;
+}
+.lab-controls {
+  padding: 20px 24px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  align-items: flex-end;
+}
+.control-group {
+  flex: 1;
+  min-width: 180px;
+}
+.control-label {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+  margin-bottom: 6px;
+  display: block;
+}
+.control-value {
+  font-size: 0.8rem;
+  color: var(--blue);
+  font-weight: 700;
+  float: left;
+  direction: ltr;
+}
+input[type="range"] {
+  width: 100%;
+  height: 6px;
+  border-radius: 3px;
+  background: var(--border);
+  outline: none;
+  -webkit-appearance: none;
+  appearance: none;
+}
+input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 20px; height: 20px;
+  border-radius: 50%;
+  background: var(--blue);
+  cursor: pointer;
+  box-shadow: 0 2px 8px var(--blue-glow);
+  transition: transform 0.2s;
+}
+input[type="range"]::-webkit-slider-thumb:hover {
+  transform: scale(1.2);
+}
+select {
+  width: 100%;
+  padding: 10px 14px;
+  border-radius: var(--radius-xs);
+  border: 1px solid var(--border);
+  background: var(--card);
+  color: var(--text);
+  font-family: 'Tajawal', sans-serif;
+  font-size: 0.9rem;
+  cursor: pointer;
+  outline: none;
+}
+select:focus { border-color: var(--blue); }
+.lab-btn {
+  padding: 10px 20px;
+  border-radius: var(--radius-xs);
+  border: none;
+  font-family: 'Tajawal', sans-serif;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.lab-btn-primary {
+  background: var(--blue);
+  color: white;
+}
+.lab-btn-primary:hover {
+  background: var(--purple);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 16px var(--blue-glow);
+}
+.lab-btn-secondary {
+  background: var(--bg);
+  color: var(--text-secondary);
+  border: 1px solid var(--border);
+}
+.lab-btn-secondary:hover {
+  border-color: var(--blue);
+  color: var(--blue);
+}
+.lab-results {
+  padding: 16px 24px;
+  background: var(--bg);
+  border-top: 1px solid var(--border);
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+.result-item {
+  flex: 1;
+  min-width: 120px;
+  padding: 12px 16px;
+  background: var(--card);
+  border-radius: var(--radius-xs);
+  border: 1px solid var(--border);
+  text-align: center;
+}
+.result-item .result-label {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  margin-bottom: 4px;
+}
+.result-item .result-value {
+  font-size: 1.3rem;
+  font-weight: 800;
+  color: var(--blue);
+  direction: ltr;
+}
+
+/* ========== الأسئلة ========== */
+.question-card {
+  background: var(--card);
+  border-radius: var(--radius);
+  border: 2px solid var(--border);
+  padding: 24px;
+  margin-bottom: 20px;
+  transition: all 0.3s;
+}
+.question-card.correct { border-color: var(--success); background: rgba(16,185,129,0.05); }
+.question-card.wrong { border-color: var(--danger); background: rgba(239,68,68,0.05); }
+.question-num {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px; height: 32px;
+  border-radius: 50%;
+  background: var(--blue);
+  color: white;
+  font-size: 0.85rem;
+  font-weight: 700;
+  margin-left: 8px;
+}
+.question-text {
+  font-size: 1.05rem;
+  font-weight: 600;
+  margin-bottom: 16px;
+  line-height: 1.8;
+}
+.options-list { display: flex; flex-direction: column; gap: 10px; }
+.option-btn {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 18px;
+  border-radius: var(--radius-sm);
+  border: 2px solid var(--border);
+  background: var(--card);
+  color: var(--text);
+  font-family: 'Tajawal', sans-serif;
+  font-size: 0.95rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s;
+  text-align: right;
+  width: 100%;
+}
+.option-btn:hover:not(.selected):not(.disabled) {
+  border-color: var(--blue-light);
+  background: var(--blue-glow);
+}
+.option-btn .opt-letter {
+  width: 30px; height: 30px;
+  border-radius: 50%;
+  background: var(--bg);
+  display: flex; align-items: center; justify-content: center;
+  font-weight: 700;
+  font-size: 0.85rem;
+  flex-shrink: 0;
+  transition: all 0.3s;
+}
+.option-btn.selected.correct {
+  border-color: var(--success);
+  background: rgba(16,185,129,0.1);
+}
+.option-btn.selected.correct .opt-letter {
+  background: var(--success);
+  color: white;
+}
+.option-btn.selected.wrong {
+  border-color: var(--danger);
+  background: rgba(239,68,68,0.1);
+}
+.option-btn.selected.wrong .opt-letter {
+  background: var(--danger);
+  color: white;
+}
+.option-btn.show-correct {
+  border-color: var(--success);
+  background: rgba(16,185,129,0.05);
+}
+.option-btn.show-correct .opt-letter {
+  background: var(--success);
+  color: white;
+}
+.option-btn.disabled { pointer-events: none; }
+.feedback-msg {
+  margin-top: 12px;
+  padding: 12px 16px;
+  border-radius: var(--radius-xs);
+  font-size: 0.9rem;
+  font-weight: 600;
+  display: none;
+  align-items: center;
+  gap: 8px;
+}
+.feedback-msg.show { display: flex; }
+.feedback-msg.correct-fb { background: rgba(16,185,129,0.1); color: var(--success); }
+.feedback-msg.wrong-fb { background: rgba(239,68,68,0.1); color: var(--danger); }
+
+/* ========== الملخص ========== */
+.mind-map {
+  background: var(--card);
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
+  padding: 32px;
+  position: relative;
+}
+.mm-center {
+  width: 160px; height: 160px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--blue), var(--purple));
+  display: flex; align-items: center; justify-content: center;
+  color: white;
+  font-size: 1.1rem;
+  font-weight: 800;
+  text-align: center;
+  margin: 0 auto 32px;
+  box-shadow: 0 8px 32px var(--blue-glow);
+  position: relative;
+  z-index: 2;
+}
+.mm-branches {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 16px;
+}
+.mm-branch {
+  background: var(--bg);
+  border-radius: var(--radius-sm);
+  padding: 16px;
+  border: 1px solid var(--border);
+  transition: all 0.3s;
+}
+.mm-branch:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow);
+  border-color: var(--blue-light);
+}
+.mm-branch-title {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--blue);
+  margin-bottom: 8px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.mm-branch ul { list-style: none; padding: 0; }
+.mm-branch li {
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+  padding: 4px 0;
+  padding-right: 16px;
+  position: relative;
+}
+.mm-branch li::before {
+  content: '';
+  position: absolute;
+  right: 0; top: 50%;
+  width: 6px; height: 6px;
+  border-radius: 50%;
+  background: var(--purple-light);
+  transform: translateY(-50%);
+}
+
+/* ========== نتيجة التقويم ========== */
+.result-card {
+  text-align: center;
+  padding: 48px 32px;
+}
+.score-circle {
+  width: 160px; height: 160px;
+  border-radius: 50%;
+  margin: 0 auto 24px;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  position: relative;
+}
+.score-circle svg {
+  position: absolute;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  transform: rotate(-90deg);
+}
+.score-circle .score-num {
+  font-size: 2.5rem;
+  font-weight: 900;
+  color: var(--blue);
+  z-index: 1;
+}
+.score-circle .score-label {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  z-index: 1;
+}
+.stars-container {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  margin-bottom: 20px;
+}
+.star {
+  font-size: 2rem;
+  color: var(--text-muted);
+  transition: all 0.5s;
+}
+.star.earned {
+  color: var(--warning);
+  text-shadow: 0 0 20px rgba(245,158,11,0.5);
+  animation: starPop 0.5s ease;
+}
+@keyframes starPop {
+  0% { transform: scale(0); }
+  50% { transform: scale(1.3); }
+  100% { transform: scale(1); }
+}
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 24px;
+  border-radius: 50px;
+  background: linear-gradient(135deg, var(--warning), #F97316);
+  color: white;
+  font-weight: 700;
+  font-size: 1rem;
+  margin-top: 16px;
+  box-shadow: 0 4px 20px rgba(245,158,11,0.4);
+}
+
+/* ========== الإشعارات ========== */
+.toast {
+  position: fixed;
+  top: 80px; left: 50%;
+  transform: translateX(-50%) translateY(-20px);
+  padding: 12px 24px;
+  border-radius: var(--radius-sm);
+  color: white;
+  font-weight: 600;
+  font-size: 0.9rem;
+  z-index: 5000;
+  opacity: 0;
+  pointer-events: none;
+  transition: all 0.4s;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.toast.show {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+}
+.toast.success { background: var(--success); }
+.toast.error { background: var(--danger); }
+.toast.info { background: var(--blue); }
+
+/* ========== أنيميشن ========== */
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+@keyframes glow {
+  0%, 100% { box-shadow: 0 0 20px var(--blue-glow); }
+  50% { box-shadow: 0 0 40px var(--purple-glow); }
+}
+.animate-in { animation: fadeInUp 0.6s ease both; }
+.animate-in-delay-1 { animation-delay: 0.1s; }
+.animate-in-delay-2 { animation-delay: 0.2s; }
+.animate-in-delay-3 { animation-delay: 0.3s; }
+
+/* ========== التجاوب ========== */
+@media (max-width: 768px) {
+  .page { padding: 20px 16px; }
+  .content-card { padding: 20px; }
+  .lab-controls { padding: 16px; }
+  .lab-results { padding: 12px 16px; }
+  .control-group { min-width: 140px; }
+  .nav-btn span { display: none; }
+  .nav-btn { padding: 10px 14px; }
+  .cover-title { font-size: 1.6rem; }
+  .mm-branches { grid-template-columns: 1fr; }
+  .sidebar { width: 260px; }
+}
+
+/* ========== تأثيرات خاصة ========== */
+.glow-border {
+  position: relative;
+}
+.glow-border::after {
+  content: '';
+  position: absolute;
+  inset: -2px;
+  border-radius: inherit;
+  background: linear-gradient(135deg, var(--blue), var(--purple), var(--accent));
+  z-index: -1;
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+.glow-border:hover::after { opacity: 1; }
+
+.key-term {
+  display: inline-block;
+  padding: 2px 10px;
+  border-radius: 4px;
+  background: var(--blue-glow);
+  color: var(--blue);
+  font-weight: 700;
+  font-size: 0.9em;
+}
+.info-box {
+  background: var(--purple-glow);
+  border-right: 4px solid var(--purple);
+  border-radius: var(--radius-xs);
+  padding: 16px 20px;
+  margin: 16px 0;
+}
+.info-box .info-title {
+  font-weight: 700;
+  color: var(--purple);
+  margin-bottom: 6px;
+  font-size: 0.95rem;
+}
+.example-box {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 20px;
+  margin: 16px 0;
+}
+.example-box .ex-title {
+  font-weight: 700;
+  color: var(--blue);
+  margin-bottom: 10px;
+  font-size: 0.95rem;
+}
+
+/* ========== وضع القراءة المتصلة ========== */
+body.continuous-mode .pages-container {
+  overflow-y: auto;
+  overflow-x: hidden;
+  bottom: 0;
+}
+body.continuous-mode .page {
+  position: relative;
+  top: auto; right: auto; bottom: auto; left: auto;
+  opacity: 1 !important;
+  transform: none !important;
+  pointer-events: all;
+  border-bottom: 2px dashed var(--border);
+  margin-bottom: 12px;
+  min-height: auto;
+}
+body.continuous-mode .page:last-child {
+  border-bottom: none;
+}
+body.continuous-mode .bottombar {
+  display: none;
+}
+</style>
+</head>
+<body>
+<!-- العلامة المائية -->
+<div class="watermark">إسراء سمارة</div>
+
+<!-- الإشعار -->
+<div class="toast" id="toast"></div>
+
+<!-- شريط التنقل العلوي -->
+<header class="topbar">
+  <div class="topbar-title">
+    <i class="fas fa-atom"></i>
+    <span id="topbarTitle">انكسار الضوء وتطبيقاته</span>
+  </div>
+  <div class="topbar-actions">
+    <button class="icon-btn" id="continuousToggle" title="قراءة متصلة (كل الصفحات)">
+      <i class="fas fa-scroll" id="continuousIcon"></i>
+    </button>
+    <button class="icon-btn" id="themeToggle" title="تبديل الوضع">
+      <i class="fas fa-moon" id="themeIcon"></i>
+    </button>
+    <button class="icon-btn" id="tocToggle" title="فهرس المحتويات">
+      <i class="fas fa-list"></i>
+    </button>
+  </div>
+</header>
+
+<!-- القائمة الجانبية -->
+<div class="sidebar-overlay" id="sidebarOverlay"></div>
+<nav class="sidebar" id="sidebar">
+  <div class="sidebar-header">
+    <h3><i class="fas fa-book-open"></i> فهرس الوحدة</h3>
+    <button class="icon-btn" id="sidebarClose" style="width:32px;height:32px;font-size:0.8rem;">
+      <i class="fas fa-times"></i>
+    </button>
+  </div>
+  <div id="tocList"></div>
+</nav>
+
+<!-- حاوية الصفحات -->
+<main class="pages-container" id="pagesContainer">
+
+  <!-- ===== صفحة 0: الغلاف ===== -->
+  <section class="page active" id="page-0">
+    <div class="cover-page">
+      <div class="cover-canvas-wrap animate-in">
+        <canvas id="coverCanvas"></canvas>
+      </div>
+      <div class="cover-badge animate-in animate-in-delay-1">
+        <i class="fas fa-flask"></i> الوحدة الخامسة - الصف التاسع
+      </div>
+      <h1 class="cover-title animate-in animate-in-delay-1">انكسار الضوء وتطبيقاته</h1>
+      <p class="cover-en-title animate-in animate-in-delay-2">Refraction of Light and Its Applications</p>
+      <p class="cover-subtitle animate-in animate-in-delay-2">اكتشف كيف ينحرف الضوء عند انتقاله بين الأوساط الشفافة وتطبيقاته المذهلة في حياتنا</p>
+      <button class="start-btn animate-in animate-in-delay-3" onclick="goToPage(1)">
+        ابدأ الدرس <i class="fas fa-arrow-left"></i>
+      </button>
+    </div>
+  </section>
+
+  <!-- ===== صفحة 1: نظرة عامة ===== -->
+  <section class="page" id="page-1">
+    <div class="content-card animate-in">
+      <h2 class="section-title">
+        <span class="title-icon"><i class="fas fa-eye"></i></span>
+        الفكرة العامة
+      </h2>
+      <p>عندما يسقط الضوء بزاوية غير عمودية على الحد الفاصل بين وسطين شفافين مختلفين فإنه يغيّر مساره عند الحد الفاصل، ونقول عندئذٍ: إنَّ الضوء قد <span class="highlight">انكسر</span>. ويترتّب على ذلك حدوث ظواهر ضوئية عدة نشاهدها في حياتنا اليوميّة.</p>
+    </div>
+
+    <div class="content-card animate-in animate-in-delay-1">
+      <div class="info-box">
+        <div class="info-title"><i class="fas fa-quote-right"></i> قال تعالى</div>
+        <p style="margin:0;font-size:1.1rem;color:var(--purple);">﴿اللَّهُ نُورُ السَّمَاوَاتِ وَالْأَرْضِ﴾ - سورة النور، آية 35</p>
+      </div>
+    </div>
+
+    <div class="content-card animate-in animate-in-delay-2">
+      <h2 class="section-title">
+        <span class="title-icon"><i class="fas fa-map"></i></span>
+        خريطة الدروس
+      </h2>
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:16px;">
+        <div class="mm-branch" style="cursor:pointer;" onclick="goToPage(2)">
+          <div class="mm-branch-title"><i class="fas fa-1" style="color:var(--blue);"></i> انكسار الضوء</div>
+          <ul>
+            <li>تعريف الانكسار</li>
+            <li>معامل الانكسار</li>
+            <li>قانون سنل</li>
+            <li>تجربة تفاعلية</li>
+          </ul>
+        </div>
+        <div class="mm-branch" style="cursor:pointer;" onclick="goToPage(5)">
+          <div class="mm-branch-title"><i class="fas fa-2" style="color:var(--purple);"></i> تطبيقات وظواهر بصرية</div>
+          <ul>
+            <li>الانعكاس الكلي الداخلي</li>
+            <li>الزاوية الحرجة</li>
+            <li>السراب وقوس المطر</li>
+            <li>الألياف الضوئية</li>
+          </ul>
+        </div>
+        <div class="mm-branch" style="cursor:pointer;" onclick="goToPage(8)">
+          <div class="mm-branch-title"><i class="fas fa-3" style="color:var(--accent);"></i> العدسات الرقيقة</div>
+          <ul>
+            <li>العدسات المحدّبة والمقعّرة</li>
+            <li>تكوّن الأخيلة</li>
+            <li>المخططات الشعاعية</li>
+            <li>تجربة تفاعلية</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <div class="content-card animate-in animate-in-delay-3">
+      <h2 class="section-title">
+        <span class="title-icon"><i class="fas fa-lightbulb"></i></span>
+        لماذا ندرس الانكسار؟
+      </h2>
+      <p>في فصل الشتاء يظهر عادةً في الجهة المقابلة للشمس ما يُعرف بقوس المطر بألوانه الجميلة، ينتج ذلك من انحراف الضوء في مسارِه أثناء مروره عبر قطرات المطر. لكن، كيف يتشكّل قوس المطر؟ ولماذا تُفصل الألوان؟ هذا ما ستكتشفه في هذه الوحدة.</p>
+    </div>
+  </section>
+
+  <!-- ===== صفحة 2: الدرس الأول ===== -->
+  <section class="page" id="page-2">
+    <div class="content-card animate-in">
+      <h2 class="section-title">
+        <span class="title-icon"><i class="fas fa-1"></i></span>
+        الدرس الأول: انكسار الضوء
+      </h2>
+      <p><span class="key-term">Refraction</span> هو انحراف مسار الضوء عندما ينتقل بين وسطين شفّافين مختلفين.</p>
+      <p>عندما نضع قلمًا في كأس بها ماء فإن القلم يظهر مكسورًا، وهذا يدلّ على أنَّ الأشعّة الضوئية القادمة من الجزء المغمور في الماء قد غيّرت مسار حركتها (انكسرت) عندما انتقلت من الماء إلى الهواء.</p>
+    </div>
+
+    <div class="content-card animate-in animate-in-delay-1">
+      <h3 class="section-subtitle">معامل الانكسار</h3>
+      <p><span class="key-term">Refractive Index</span> للوسط الشفاف هو النسبة بين سرعة الضوء في الفراغ إلى سرعته في الوسط الشفاف:</p>
+      <div class="formula-box">
+        <div class="formula">n = c / v</div>
+        <div class="formula-label">حيث c: سرعة الضوء في الفراغ (3×10⁸ م/ث)، v: سرعته في الوسط</div>
+      </div>
+      <p>تكون قيمة معامل الانكسار دائمًا <span class="highlight">(n ≥ 1)</span>، فكلما كان معامل الانكسار أكبر كانت قدرة الوسط على كسر الأشعة أكبر وقلّت سرعة الضوء فيه.</p>
+    </div>
+
+    <div class="content-card animate-in animate-in-delay-2">
+      <h3 class="section-subtitle">معاملات الانكسار لبعض المواد</h3>
+      <table class="data-table">
+        <thead><tr><th>المادة</th><th>الماء</th><th>الأسيتون</th><th>الجلسرين</th><th>الزجاج</th><th>الكوارتز</th><th>الماس</th></tr></thead>
+        <tbody><tr><td style="font-weight:700;">n</td><td>1.33</td><td>1.36</td><td>1.47</td><td>1.52</td><td>1.55</td><td>2.42</td></tr></tbody>
+      </table>
+    </div>
+
+    <div class="content-card animate-in animate-in-delay-3">
+      <h3 class="section-subtitle">قانون سنل (Snell's Law)</h3>
+      <p>عندما ينتقل شعاع ضوئي من وسط شفاف معامل انكساره n₁ إلى وسط شفاف معامل انكساره n₂ فإنَّ:</p>
+      <div class="formula-box">
+        <div class="formula">n₁ sin θ₁ = n₂ sin θ₂</div>
+        <div class="formula-label">θ₁: زاوية السقوط، θ₂: زاوية الانكسار</div>
+      </div>
+      <div class="info-box">
+        <div class="info-title"><i class="fas fa-history"></i> ربط بالتاريخ</div>
+        <p style="margin:0;">أوّل من وصف قانون الانكسار وصفًا صحيحًا هو العالم المسلم <strong>العلاء بن سهل</strong> في القرن العاشر الميلادي، وقد استفاد <strong>الحسن بن الهيثم</strong> من أبحاثه في اكتشافاته الخاصة بعلم البصريات.</p>
+      </div>
+    </div>
+
+    <div class="example-box animate-in">
+      <div class="ex-title"><i class="fas fa-calculator"></i> مثال: أحسب سرعة الضوء في الماء</div>
+      <p style="margin-bottom:8px;"><strong>المُعطيات:</strong> c = 3×10⁸ م/ث، n = 1.33</p>
+      <p style="margin-bottom:8px;"><strong>الحل:</strong> n = c/v → v = c/n = 3×10⁸ / 1.33 = <span class="highlight">2.25×10⁸ م/ث</span></p>
+    </div>
+
+    <div style="text-align:center;margin:24px 0;">
+      <button class="start-btn" style="font-size:0.95rem;padding:12px 32px;" onclick="goToPage(3)">
+        <i class="fas fa-flask"></i> جرب التجربة بنفسك
+      </button>
+    </div>
+  </section>
+
+  <!-- ===== صفحة 3: مختبر الانكسار ===== -->
+  <section class="page" id="page-3">
+    <div class="lab-container animate-in">
+      <div class="lab-header">
+        <h3><i class="fas fa-microscope"></i> مختبر الانكسار التفاعلي</h3>
+        <div style="display:flex;gap:8px;">
+          <button class="lab-btn lab-btn-secondary" onclick="resetRefractionLab()"><i class="fas fa-redo"></i> إعادة</button>
+        </div>
+      </div>
+      <div class="lab-canvas-wrap">
+        <canvas id="refractionCanvas"></canvas>
+      </div>
+      <div class="lab-controls">
+        <div class="control-group">
+          <label class="control-label">زاوية السقوط <span class="control-value" id="angleVal">30°</span></label>
+          <input type="range" id="angleSlider" min="0" max="89" value="30" oninput="updateRefraction()">
+        </div>
+        <div class="control-group">
+          <label class="control-label">الوسط الثاني</label>
+          <select id="mediumSelect" onchange="updateRefraction()">
+            <option value="1.33">الماء (n=1.33)</option>
+            <option value="1.52" selected>الزجاج (n=1.52)</option>
+            <option value="2.42">الماس (n=2.42)</option>
+          </select>
+        </div>
+        <div class="control-group">
+          <label class="control-label">اتجاه الانتقال</label>
+          <select id="directionSelect" onchange="updateRefraction()">
+            <option value="toMedium">هواء ← وسط</option>
+            <option value="toAir">وسط ← هواء</option>
+          </select>
+        </div>
+      </div>
+      <div class="lab-results">
+        <div class="result-item">
+          <div class="result-label">معامل الوسط الأول</div>
+          <div class="result-value" id="resN1">1.00</div>
+        </div>
+        <div class="result-item">
+          <div class="result-label">معامل الوسط الثاني</div>
+          <div class="result-value" id="resN2">1.52</div>
+        </div>
+        <div class="result-item">
+          <div class="result-label">زاوية السقوط</div>
+          <div class="result-value" id="resT1">30°</div>
+        </div>
+        <div class="result-item">
+          <div class="result-label">زاوية الانكسار</div>
+          <div class="result-value" id="resT2">19.2°</div>
+        </div>
+        <div class="result-item" id="tirIndicator" style="display:none;">
+          <div class="result-label">الحالة</div>
+          <div class="result-value" style="color:var(--danger);">انعكاس كلي!</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== صفحة 4: تمارين الدرس الأول ===== -->
+  <section class="page" id="page-4">
+    <div class="content-card animate-in">
+      <h2 class="section-title">
+        <span class="title-icon"><i class="fas fa-pen"></i></span>
+        اختبر نفسك - الدرس الأول
+      </h2>
+      <p>أجب عن الأسئلة الآتية ثم تحقق من إجاباتك:</p>
+    </div>
+
+    <div class="question-card animate-in animate-in-delay-1" data-correct="b">
+      <div class="question-text"><span class="question-num">1</span> أيُّ مما يلي يمثّل أقلّ قيمة لمعامل الانكسار؟</div>
+      <div class="options-list">
+        <button class="option-btn" data-val="a" onclick="checkAnswer(this)"><span class="opt-letter">أ</span> الماء</button>
+        <button class="option-btn" data-val="b" onclick="checkAnswer(this)"><span class="opt-letter">ب</span> الهواء</button>
+        <button class="option-btn" data-val="c" onclick="checkAnswer(this)"><span class="opt-letter">ج</span> الزجاج</button>
+        <button class="option-btn" data-val="d" onclick="checkAnswer(this)"><span class="opt-letter">د</span> الماس</button>
+      </div>
+      <div class="feedback-msg correct-fb"><i class="fas fa-check-circle"></i> إجابة صحيحة! معامل انكسار الهواء يساوي 1 تقريبًا وهي أقل قيمة ممكنة.</div>
+      <div class="feedback-msg wrong-fb"><i class="fas fa-times-circle"></i> تذكّر: معامل انكسار الهواء ≈ 1 وهو الحد الأدنى لأن سرعة الضوء فيه تقارب سرعته في الفراغ.</div>
+    </div>
+
+    <div class="question-card animate-in animate-in-delay-2" data-correct="c">
+      <div class="question-text"><span class="question-num">2</span> إذا سقط شعاع ضوئي عموديًا على الحد الفاصل بين وسطين شفافين، فماذا يحدث؟</div>
+      <div class="options-list">
+        <button class="option-btn" data-val="a" onclick="checkAnswer(this)"><span class="opt-letter">أ</span> ينكسر بزاوية كبيرة</button>
+        <button class="option-btn" data-val="b" onclick="checkAnswer(this)"><span class="opt-letter">ب</span> ينعكس كليًا</button>
+        <button class="option-btn" data-val="c" onclick="checkAnswer(this)"><span class="opt-letter">ج</span> يستمر في مساره دون انحراف</button>
+        <button class="option-btn" data-val="d" onclick="checkAnswer(this)"><span class="opt-letter">د</span> يتوقف</button>
+      </div>
+      <div class="feedback-msg correct-fb"><i class="fas fa-check-circle"></i> صحيح! عند السقوط العمودي (θ₁=0) تكون θ₂=0 أيضًا.</div>
+      <div class="feedback-msg wrong-fb"><i class="fas fa-times-circle"></i> عند θ₁=0°، نطبق قانون سنل: n₁×sin0 = n₂×sinθ₂ → θ₂=0°</div>
+    </div>
+
+    <div class="question-card animate-in animate-in-delay-3" data-correct="a">
+      <div class="question-text"><span class="question-num">3</span> انتقل شعاع من الماء (n=1.33) إلى الزجاج (n=1.52) بزاوية سقوط 45°. أيُّ العبارة صحيحة؟</div>
+      <div class="options-list">
+        <button class="option-btn" data-val="a" onclick="checkAnswer(this)"><span class="opt-letter">أ</span> زاوية الانكسار أصغر من زاوية السقوط</button>
+        <button class="option-btn" data-val="b" onclick="checkAnswer(this)"><span class="opt-letter">ب</span> زاوية الانكسار أكبر من زاوية السقوط</button>
+        <button class="option-btn" data-val="c" onclick="checkAnswer(this)"><span class="opt-letter">ج</span> زاوية الانكسار تساوي زاوية السقوط</button>
+        <button class="option-btn" data-val="d" onclick="checkAnswer(this)"><span class="opt-letter">د</span> يحدث انعكاس كلي</button>
+      </div>
+      <div class="feedback-msg correct-fb"><i class="fas fa-check-circle"></i> ممتاز! لأن n₂>n₁ فإن θ₂<θ₁ والشعاع ينكسر مقتربًا من العمود.</div>
+      <div class="feedback-msg wrong-fb"><i class="fas fa-times-circle"></i> عندما ينتقل الضوء لوسط أكبر في الكثافة (n₂>n₁) تنكسر زاوية الانكسار مقتربة من العمود.</div>
+    </div>
+  </section>
+
+  <!-- ===== صفحة 5: الدرس الثاني ===== -->
+  <section class="page" id="page-5">
+    <div class="content-card animate-in">
+      <h2 class="section-title">
+        <span class="title-icon"><i class="fas fa-2"></i></span>
+        الدرس الثاني: تطبيقات وظواهر بصرية
+      </h2>
+    </div>
+
+    <div class="content-card animate-in animate-in-delay-1">
+      <h3 class="section-subtitle">الزاوية الحرجة</h3>
+      <p><span class="key-term">Critical Angle</span> هي زاوية السقوط التي تقابلها زاوية انكسار مقدارها 90°، ويُرمز إليها بـ θc.</p>
+      <div class="formula-box">
+        <div class="formula">sin θc = n₂ / n₁</div>
+        <div class="formula-label">عند الانتقال من وسط أكبر كثافة إلى وسط أقل (n₁ > n₂)</div>
+      </div>
+      <div class="formula-box">
+        <div class="formula">sin θc = 1 / n</div>
+        <div class="formula-label">عند الانتقال من الوسط الشفاف إلى الفراغ (الهواء)</div>
+      </div>
+    </div>
+
+    <div class="content-card animate-in animate-in-delay-2">
+      <h3 class="section-subtitle">الانعكاس الكلي الداخلي</h3>
+      <p><span class="key-term">Total Internal Reflection</span> يحدث عندما ينتقل شعاع ضوئي من وسط شفاف إلى آخر أقل في معامل الانكسار، وكانت زاوية السقوط أكبر من الزاوية الحرجة، فينعكس الشعاع كليًا في الوسط الأول.</p>
+      <div class="info-box">
+        <div class="info-title"><i class="fas fa-exclamation-triangle"></i> شروط حدوث الانعكاس الكلي الداخلي</div>
+        <p style="margin:0;">1. ينتقل الضوء من وسط أكبر في معامل الانكسار إلى وسط أقل.<br>2. زاوية السقوط أكبر من الزاوية الحرجة.</p>
+      </div>
+    </div>
+
+    <div class="content-card animate-in animate-in-delay-3">
+      <h3 class="section-subtitle">السراب</h3>
+      <p><span class="key-term">Mirage</span> ظاهرة طبيعية تحدث نتيجة انكسارات متتالية للضوء خلال طبقات الهواء القريبة من سطح الأرض.</p>
+      <p><strong>السراب الصحراوي:</strong> في الأيام الحارة يكون الهواء الملامس للأرض ساخنًا جدًا، فتقل كثافته ومعامل انكساره مع الارتفاع. تنكسر الأشعة القادمة من أجسام بعيدة مبتعدة عن العمود، ثم تنعكس انعكاسًا كليًا داخليًا فتظهر صورة مقلوبة للجسم.</p>
+      <p><strong>السراب القطبي:</strong> على العكس، يكون الهواء الملامس للأرض أكثر برودة، فتزيد كثافته مع الارتفاع، مما يسبب انكسارات ثم انعكاسًا كليًا يظهر صورة مقلوبة في الأعلى.</p>
+    </div>
+
+    <div class="content-card animate-in">
+      <h3 class="section-subtitle">قوس المطر (قوس قزح)</h3>
+      <p>يتكوّن الضوء الأبيض من سبعة ألوان (طيف مرئي). معامل الانكسار يختلف باختلاف اللون، فأكبره للبنفسجي وأقلّه للأحمر. عند مرور ضوء الشمس عبر قطرات الماء:</p>
+      <p>1. ينكسر الضوء عند دخول القطرة مقتربًا من العمود.<br>2. ينعكس انعكاسًا كليًا داخلية على السطح الداخلي.<br>3. ينكسر مبتعدًا عن العمود عند الخروج بزوايا مختلفة لكل لون.<br>4. تظهر الألوان مرتّبة من الأحمر (أعلى) إلى البنفسجي (أسفل).</p>
+    </div>
+
+    <div class="content-card animate-in">
+      <h3 class="section-subtitle">الألياف الضوئية</h3>
+      <p><span class="key-term">Optical Fibers</span> أنابيب رفيعة شفافة تتكوّن من قلب وغلاف، معامل انكسار الغلاف أقل من القلب. يدخل الضوء بزاوية أكبر من الزاوية الحرجة فينعكس كليًا داخليًا وينتقل لمسافات بعيدة دون ضياع.</p>
+      <p><strong>التطبيقات:</strong> المناظير الطبية، جراحة المنظار، نقل البيانات والاتصالات بكفاءة عالية.</p>
+    </div>
+
+    <div style="text-align:center;margin:24px 0;">
+      <button class="start-btn" style="font-size:0.95rem;padding:12px 32px;" onclick="goToPage(6)">
+        <i class="fas fa-flask"></i> جرّب الانعكاس الكلي
+      </button>
+    </div>
+  </section>
+
+  <!-- ===== صفحة 6: مختبر الانعكاس الكلي ===== -->
+  <section class="page" id="page-6">
+    <div class="lab-container animate-in">
+      <div class="lab-header">
+        <h3><i class="fas fa-microscope"></i> مختبر الانعكاس الكلي الداخلي</h3>
+        <button class="lab-btn lab-btn-secondary" onclick="resetTIRLab()"><i class="fas fa-redo"></i> إعادة</button>
+      </div>
+      <div class="lab-canvas-wrap">
+        <canvas id="tirCanvas"></canvas>
+      </div>
+      <div class="lab-controls">
+        <div class="control-group" style="flex:2;">
+          <label class="control-label">زاوية السقوط <span class="control-value" id="tirAngleVal">20°</span></label>
+          <input type="range" id="tirAngleSlider" min="0" max="89" value="20" oninput="updateTIR()">
+        </div>
+        <div class="control-group">
+          <label class="control-label">الوسط</label>
+          <select id="tirMediumSelect" onchange="updateTIR()">
+            <option value="1.33">الماء (n=1.33)</option>
+            <option value="1.52" selected>الزجاج (n=1.52)</option>
+            <option value="2.42">الماس (n=2.42)</option>
+          </select>
+        </div>
+      </div>
+      <div class="lab-results">
+        <div class="result-item">
+          <div class="result-label">الزاوية الحرجة</div>
+          <div class="result-value" id="tirCritVal">41.1°</div>
+        </div>
+        <div class="result-item">
+          <div class="result-label">زاوية السقوط</div>
+          <div class="result-value" id="tirIncVal">20°</div>
+        </div>
+        <div class="result-item">
+          <div class="result-label">الحالة</div>
+          <div class="result-value" id="tirStateVal" style="color:var(--success);">انكسار عادي</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== صفحة 7: تمارين الدرس الثاني ===== -->
+  <section class="page" id="page-7">
+    <div class="content-card animate-in">
+      <h2 class="section-title">
+        <span class="title-icon"><i class="fas fa-pen"></i></span>
+        اختبر نفسك - الدرس الثاني
+      </h2>
+    </div>
+
+    <div class="question-card animate-in animate-in-delay-1" data-correct="d">
+      <div class="question-text"><span class="question-num">1</span> أيُّ الشروط التالية لا يجب تحققه لحدوث الانعكاس الكلي الداخلي؟</div>
+      <div class="options-list">
+        <button class="option-btn" data-val="a" onclick="checkAnswer(this)"><span class="opt-letter">أ</span> الانتقال من وسط أكبر كثافة إلى أقل</button>
+        <button class="option-btn" data-val="b" onclick="checkAnswer(this)"><span class="opt-letter">ب</span> زاوية السقوط أكبر من الزاوية الحرجة</button>
+        <button class="option-btn" data-val="c" onclick="checkAnswer(this)"><span class="opt-letter">ج</span> وجود وسطين شفافين مختلفين</button>
+        <button class="option-btn" data-val="d" onclick="checkAnswer(this)"><span class="opt-letter">د</span> أن يكون الوسط الثاني هو الماس</button>
+      </div>
+      <div class="feedback-msg correct-fb"><i class="fas fa-check-circle"></i> صحيح! لا يشترط أن يكون الوسط الثاني ماسًا، أي وسطين مختلفين يكفيان.</div>
+      <div class="feedback-msg wrong-fb"><i class="fas fa-times-circle"></i> الشرطان الأساسيان هما: n₁>n₂ و θ₁>θc فقط.</div>
+    </div>
+
+    <div class="question-card animate-in animate-in-delay-2" data-correct="b">
+      <div class="question-text"><span class="question-num">2</span> تبلغ الزاوية الحرجة للماس نحو 24.4°. ما السبب في تلألؤ الماس؟</div>
+      <div class="options-list">
+        <button class="option-btn" data-val="a" onclick="checkAnswer(this)"><span class="opt-letter">أ</span> لأنه شفاف</button>
+        <button class="option-btn" data-val="b" onclick="checkAnswer(this)"><span class="opt-letter">ب</span> زاويته الحرجة صغيرة فتحدث انعكاسات كلية متعددة</button>
+        <button class="option-btn" data-val="c" onclick="checkAnswer(this)"><span class="opt-letter">ج</span> لأنه أصلب من الزجاج</button>
+        <button class="option-btn" data-val="d" onclick="checkAnswer(this)"><span class="opt-letter">د</span> لأن لونه أبيض</button>
+      </div>
+      <div class="feedback-msg correct-fb"><i class="fas fa-check-circle"></i> ممتاز! الزاوية الحرجة الصغيرة تعني أن معظم الأشعة تسقط بزوايا أكبر منها فتنعكس كليًا.</div>
+      <div class="feedback-msg wrong-fb"><i class="fas fa-times-circle"></i> الزاوية الحرجة الصغيرة (24.4°) تجعل أغلب زوايا السقوط أكبر منها فيحدث انعكاس كلي متعدد.</div>
+    </div>
+
+    <div class="question-card animate-in animate-in-delay-3" data-correct="a">
+      <div class="question-text"><span class="question-num">3</span> في قوس المطر، لماذا يظهر اللون الأحمر في الأعلى والبنفسجي في الأسفل؟</div>
+      <div class="options-list">
+        <button class="option-btn" data-val="a" onclick="checkAnswer(this)"><span class="opt-letter">أ</span> لأن معامل انكسار البنفسجي أكبر فينكسر بزاوية أكبر</button>
+        <button class="option-btn" data-val="b" onclick="checkAnswer(this)"><span class="opt-letter">ب</span> لأن اللون الأحمر أسرع</button>
+        <button class="option-btn" data-val="c" onclick="checkAnswer(this)"><span class="opt-letter">ج</span> لأن الأحمر طاقة أكبر</button>
+        <button class="option-btn" data-val="d" onclick="checkAnswer(this)"><span class="opt-letter">د</span> لا يوجد سبب علمي</button>
+      </div>
+      <div class="feedback-msg correct-fb"><i class="fas fa-check-circle"></i> صحيح! معامل انكسار البنفسجي أكبر فتكون زاوية انكساره أكبر (يُبعد أكثر عن العمود) فيظهر أسفلًا.</div>
+      <div class="feedback-msg wrong-fb"><i class="fas fa-times-circle"></i> كل لون له معامل انكسار مختلف: البنفسجي الأكبر فينكسر بزاوية أكبر ويظهر أسفلًا.</div>
+    </div>
+  </section>
+
+  <!-- ===== صفحة 8: الدرس الثالث ===== -->
+  <section class="page" id="page-8">
+    <div class="content-card animate-in">
+      <h2 class="section-title">
+        <span class="title-icon"><i class="fas fa-3"></i></span>
+        الدرس الثالث: العدسات الرقيقة
+      </h2>
+      <p><span class="key-term">Lens</span> قطعة بصريّة تتكوّن من وسط شفاف يحدّه سطحان مُنحنيان، أو أحدُهما مستوٍ والآخر مُنحنٍ.</p>
+    </div>
+
+    <div class="content-card animate-in animate-in-delay-1">
+      <h3 class="section-subtitle">العدسات المحدّبة (Converging)</h3>
+      <p>سميكة من الوسط وأقل سُمكًا عند الحافات. تُجمّع الأشعة الضوئية الساقطة عليها موازية للمحور الرئيس في نقطة تُسمّى <span class="highlight">البؤرة</span> وهي بؤرة حقيقية.</p>
+      <p><strong>المصطلحات:</strong> المركز البصري (O)، البؤرة (F)، البعد البؤري (f)، المحور الرئيس.</p>
+    </div>
+
+    <div class="content-card animate-in animate-in-delay-2">
+      <h3 class="section-subtitle">العدسات المقعّرة (Diverging)</h3>
+      <p>سميكة عند الحافات وأقل سُمكًا عند الوسط. تُفرّق الأشعة الضوئية الساقطة عليها، وبؤرتها وهميّة (ناتجة من التقاء امتدادات الأشعة).</p>
+    </div>
+
+    <div class="content-card animate-in animate-in-delay-3">
+      <h3 class="section-subtitle">المخططات الشعاعية المعيارية</h3>
+      <p>لرسم خيال أي جسم أمام عدسة نستخدم ثلاثة أشعة معيارية:</p>
+      <p><strong>1.</strong> شعاع يمر بالمركز البصري → يستمر في مساره دون انحراف.<br>
+      <strong>2.</strong> شعاع موازٍ للمحور الرئيس → ينكسر مارًا بالبؤرة (محدّبة) أو امتداده يمر بالبؤرة (مقعّرة).<br>
+      <strong>3.</strong> شعاع يمر بالبؤرة (أو امتداده) → ينكسر موازيًا للمحور الرئيس.</p>
+    </div>
+
+    <div class="content-card animate-in">
+      <h3 class="section-subtitle">تكوّن الأخيلة في العدسة المحدّبة</h3>
+      <table class="data-table">
+        <thead><tr><th>موقع الجسم</th><th>نوع الخيال</th><th>الحجم</th><th>الاتجاه</th></tr></thead>
+        <tbody>
+          <tr><td>x > 2f</td><td>حقيقي</td><td>مصغّر</td><td>مقلوب</td></tr>
+          <tr><td>x = 2f</td><td>حقيقي</td><td>مساوٍ</td><td>مقلوب</td></tr>
+          <tr><td>f < x < 2f</td><td>حقيقي</td><td>مكبّر</td><td>مقلوب</td></tr>
+          <tr><td>x = f</td><td colspan="3" style="color:var(--danger);font-weight:700;">لا يتكوّن خيال</td></tr>
+          <tr><td>x < f</td><td>وهمي</td><td>مكبّر</td><td>معتدل</td></tr>
+        </tbody>
+      </table>
+      <p style="margin-top:12px;"><strong>العدسة المقعّرة دائمًا:</strong> خيال وهمي، مصغّر، معتدل، بين العدسة وبؤرتها.</p>
+    </div>
+
+    <div style="text-align:center;margin:24px 0;">
+      <button class="start-btn" style="font-size:0.95rem;padding:12px 32px;" onclick="goToPage(9)">
+        <i class="fas fa-flask"></i> جرّب العدسات بنفسك
+      </button>
+    </div>
+  </section>
+
+  <!-- ===== صفحة 9: مختبر العدسات ===== -->
+  <section class="page" id="page-9">
+    <div class="lab-container animate-in">
+      <div class="lab-header">
+        <h3><i class="fas fa-microscope"></i> مختبر العدسات التفاعلي</h3>
+        <div style="display:flex;gap:8px;">
+          <button class="lab-btn lab-btn-secondary" onclick="toggleLensType()" id="lensTypeBtn"><i class="fas fa-exchange-alt"></i> مقعّرة</button>
+          <button class="lab-btn lab-btn-secondary" onclick="resetLensLab()"><i class="fas fa-redo"></i> إعادة</button>
+        </div>
+      </div>
+      <div class="lab-canvas-wrap">
+        <canvas id="lensCanvas"></canvas>
+      </div>
+      <div class="lab-controls">
+        <div class="control-group" style="flex:2;">
+          <label class="control-label">بعد الجسم عن العدسة <span class="control-value" id="lensDistVal">25 cm</span></label>
+          <input type="range" id="lensDistSlider" min="3" max="50" value="25" oninput="updateLens()">
+        </div>
+        <div class="control-group">
+          <label class="control-label">البعد البؤري</label>
+          <select id="lensFocalSelect" onchange="updateLens()">
+            <option value="10">f = 10 cm</option>
+            <option value="15" selected>f = 15 cm</option>
+            <option value="20">f = 20 cm</option>
+          </select>
+        </div>
+      </div>
+      <div class="lab-results">
+        <div class="result-item">
+          <div class="result-label">نوع الخيال</div>
+          <div class="result-value" id="lensTypeRes" style="font-size:1rem;">حقيقي</div>
+        </div>
+        <div class="result-item">
+          <div class="result-label">الحجم</div>
+          <div class="result-value" id="lensSizeRes" style="font-size:1rem;">مكبّر</div>
+        </div>
+        <div class="result-item">
+          <div class="result-label">الاتجاه</div>
+          <div class="result-value" id="lensOrientRes" style="font-size:1rem;">مقلوب</div>
+        </div>
+        <div class="result-item">
+          <div class="result-label">بعد الخيال</div>
+          <div class="result-value" id="lensImgDistRes">37.5 cm</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== صفحة 10: ملخص الدرس ===== -->
+  <section class="page" id="page-10">
+    <div class="content-card animate-in">
+      <h2 class="section-title">
+        <span class="title-icon"><i class="fas fa-sitemap"></i></span>
+        ملخص الوحدة
+      </h2>
+    </div>
+
+    <div class="mind-map animate-in animate-in-delay-1">
+      <div class="mm-center">انكسار<br>الضوء<br>وتطبيقاته</div>
+      <div class="mm-branches">
+        <div class="mm-branch">
+          <div class="mm-branch-title"><i class="fas fa-angle-right" style="color:var(--blue);"></i> الانكسار</div>
+          <ul>
+            <li>تغيّر مسار الضوء عند الانتقال بين وسطين مختلفين</li>
+            <li>معامل الانكسار: n = c/v</li>
+            <li>قانون سنل: n₁sinθ₁ = n₂sinθ₂</li>
+            <li>n ≥ 1 دائمًا</li>
+          </ul>
+        </div>
+        <div class="mm-branch">
+          <div class="mm-branch-title"><i class="fas fa-angle-right" style="color:var(--purple);"></i> الانعكاس الكلي</div>
+          <ul>
+            <li>الشرط: n₁>n₂ و θ₁>θc</li>
+            <li>الزاوية الحرجة: sinθc = n₂/n₁</li>
+            <li>التطبيقات: الألياف الضوئية، المناظير الطبية</li>
+          </ul>
+        </div>
+        <div class="mm-branch">
+          <div class="mm-branch-title"><i class="fas fa-angle-right" style="color:var(--accent);"></i> ظواهر بصرية</div>
+          <ul>
+            <li>السراب الصحراوي والقطبي</li>
+            <li>قوس المطر: تفريق ألوان الطيف</li>
+            <li>البنفسجي ينكسر أكثر، الأحمر أقل</li>
+          </ul>
+        </div>
+        <div class="mm-branch">
+          <div class="mm-branch-title"><i class="fas fa-angle-right" style="color:var(--warning);"></i> العدسات</div>
+          <ul>
+            <li>محدّبة: مُجمّعة، بؤرة حقيقية</li>
+            <li>مقعّرة: مُفرّقة، بؤرة وهمية</li>
+            <li>3 أشعة معيارية لتحديد الخيال</li>
+            <li>صفات الخيال تعتمد على موقع الجسم</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <div class="content-card animate-in" style="text-align:center;margin-top:24px;">
+      <h3 class="section-subtitle" style="justify-content:center;">العلاقات الأساسية</h3>
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px;margin-top:16px;">
+        <div class="formula-box" style="margin:0;">
+          <div class="formula" style="font-size:1.1rem;">n = c / v</div>
+          <div class="formula-label">معامل الانكسار</div>
+        </div>
+        <div class="formula-box" style="margin:0;">
+          <div class="formula" style="font-size:1.1rem;">n₁sinθ₁ = n₂sinθ₂</div>
+          <div class="formula-label">قانون سنل</div>
+        </div>
+        <div class="formula-box" style="margin:0;">
+          <div class="formula" style="font-size:1.1rem;">sinθc = 1/n</div>
+          <div class="formula-label">الزاوية الحرجة</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== صفحة 11: التقويم النهائي ===== -->
+  <section class="page" id="page-11">
+    <div class="content-card animate-in" id="assessmentIntro">
+      <h2 class="section-title">
+        <span class="title-icon"><i class="fas fa-trophy"></i></span>
+        التقويم النهائي
+      </h2>
+      <p>اختبر فهمك لوحدة انكسار الضوء وتطبيقاته من خلال الأسئلة الآتية. اضغط على "ابدأ الاختبار" للبدء.</p>
+      <div style="text-align:center;margin-top:20px;">
+        <button class="start-btn" style="font-size:0.95rem;padding:12px 32px;" onclick="startAssessment()">
+          <i class="fas fa-play"></i> ابدأ الاختبار
+        </button>
+      </div>
+    </div>
+
+    <div id="assessmentQuestions" style="display:none;"></div>
+
+    <div id="assessmentResult" style="display:none;">
+      <div class="content-card result-card">
+        <h2 style="font-size:1.5rem;font-weight:800;margin-bottom:8px;">نتيجة التقويم</h2>
+        <div class="score-circle">
+          <svg viewBox="0 0 160 160">
+            <circle cx="80" cy="80" r="70" fill="none" stroke="var(--border)" stroke-width="8"/>
+            <circle cx="80" cy="80" r="70" fill="none" stroke="var(--blue)" stroke-width="8"
+              stroke-dasharray="440" stroke-dashoffset="440" stroke-linecap="round" id="scoreArc"/>
+          </svg>
+          <div class="score-num" id="scoreNum">0</div>
+          <div class="score-label">من 100</div>
+        </div>
+        <div class="stars-container" id="starsContainer">
+          <i class="fas fa-star star" data-star="1"></i>
+          <i class="fas fa-star star" data-star="2"></i>
+          <i class="fas fa-star star" data-star="3"></i>
+          <i class="fas fa-star star" data-star="4"></i>
+          <i class="fas fa-star star" data-star="5"></i>
+        </div>
+        <div class="badge" id="badgeText" style="display:none;">
+          <i class="fas fa-medal"></i> <span id="badgeLabel"></span>
+        </div>
+        <div style="margin-top:24px;display:flex;gap:12px;justify-content:center;flex-wrap:wrap;">
+          <button class="lab-btn lab-btn-primary" onclick="startAssessment()"><i class="fas fa-redo"></i> إعادة الاختبار</button>
+          <button class="lab-btn lab-btn-secondary" onclick="goToPage(10)"><i class="fas fa-sitemap"></i> مراجعة الملخص</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<!-- شريط التنقل السفلي -->
+<footer class="bottombar">
+  <button class="nav-btn" id="prevBtn" onclick="prevPage()" disabled>
+    <i class="fas fa-arrow-right"></i> <span>السابق</span>
+  </button>
+  <div style="text-align:center;">
+    <div class="page-counter" id="pageCounter">1 / 12</div>
+    <div class="page-dots" id="pageDots"></div>
+  </div>
+  <button class="nav-btn" id="nextBtn" onclick="nextPage()">
+    <span>التالي</span> <i class="fas fa-arrow-left"></i>
+  </button>
+</footer>
+
+<script>
+/* ====================================================
+   الكتاب الإلكتروني التفاعلي - انكسار الضوء وتطبيقاته
+   ==================================================== */
+
+// ========== إدارة الصوت (Web Audio API) ==========
+const SoundMgr = {
+  ctx: null,
+  init() {
+    if (!this.ctx) this.ctx = new (window.AudioContext || window.webkitAudioContext)();
+  },
+  // صوت نقرة خفيفة
+  click() {
+    this.init();
+    const o = this.ctx.createOscillator();
+    const g = this.ctx.createGain();
+    o.connect(g); g.connect(this.ctx.destination);
+    o.frequency.value = 800; o.type = 'sine';
+    g.gain.setValueAtTime(0.15, this.ctx.currentTime);
+    g.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + 0.1);
+    o.start(); o.stop(this.ctx.currentTime + 0.1);
+  },
+  // صوت إجابة صحيحة
+  correct() {
+    this.init();
+    [523, 659, 784].forEach((f, i) => {
+      const o = this.ctx.createOscillator();
+      const g = this.ctx.createGain();
+      o.connect(g); g.connect(this.ctx.destination);
+      o.frequency.value = f; o.type = 'sine';
+      const t = this.ctx.currentTime + i * 0.12;
+      g.gain.setValueAtTime(0.12, t);
+      g.gain.exponentialRampToValueAtTime(0.001, t + 0.2);
+      o.start(t); o.stop(t + 0.2);
+    });
+  },
+  // صوت إجابة خاطئة
+  wrong() {
+    this.init();
+    const o = this.ctx.createOscillator();
+    const g = this.ctx.createGain();
+    o.connect(g); g.connect(this.ctx.destination);
+    o.frequency.value = 300; o.type = 'sawtooth';
+    g.gain.setValueAtTime(0.1, this.ctx.currentTime);
+    g.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + 0.3);
+    o.start(); o.stop(this.ctx.currentTime + 0.3);
+  },
+  // صوت تجربة
+  experiment() {
+    this.init();
+    const o = this.ctx.createOscillator();
+    const g = this.ctx.createGain();
+    o.connect(g); g.connect(this.ctx.destination);
+    o.frequency.setValueAtTime(200, this.ctx.currentTime);
+    o.frequency.exponentialRampToValueAtTime(600, this.ctx.currentTime + 0.3);
+    o.type = 'sine';
+    g.gain.setValueAtTime(0.1, this.ctx.currentTime);
+    g.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + 0.4);
+    o.start(); o.stop(this.ctx.currentTime + 0.4);
+  }
+};
+
+// ========== إدارة الصفحات ==========
+const PAGE_COUNT = 12;
+const PAGE_TITLES = [
+  'الغلاف',
+  'نظرة عامة',
+  'الدرس الأول: انكسار الضوء',
+  'مختبر الانكسار',
+  'اختبار الدرس الأول',
+  'الدرس الثاني: تطبيقات بصرية',
+  'مختبر الانعكاس الكلي',
+  'اختبار الدرس الثاني',
+  'الدرس الثالث: العدسات الرقيقة',
+  'مختبر العدسات',
+  'ملخص الوحدة',
+  'التقويم النهائي'
+];
+let currentPage = 0;
+let continuousMode = false;
+let pageObserver = null;
+
+function goToPage(idx) {
+  if (idx < 0 || idx >= PAGE_COUNT) return;
+  SoundMgr.click();
+  const newPage = document.getElementById('page-' + idx);
+  if (!newPage) return;
+
+  // في وضع القراءة المتصلة: مرّر إلى الصفحة بدل تبديل الظهور
+  if (continuousMode) {
+    newPage.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    currentPage = idx;
+    updateNav();
+    closeSidebar();
+    return;
+  }
+
+  const oldPage = document.getElementById('page-' + currentPage);
+  if (!oldPage) return;
+
+  // تحديد اتجاه الانتقال
+  const goingForward = idx > currentPage;
+  oldPage.classList.remove('active', 'exit-left');
+  if (goingForward) oldPage.classList.add('exit-left');
+  oldPage.style.transform = goingForward ? 'translateX(-40px)' : 'translateX(40px)';
+
+  newPage.style.transform = goingForward ? 'translateX(40px)' : 'translateX(-40px)';
+  requestAnimationFrame(() => {
+    newPage.classList.add('active');
+    newPage.scrollTop = 0;
+  });
+
+  currentPage = idx;
+  updateNav();
+  closeSidebar();
+
+  // تشغيل أنيميشن الكانفاس عند الوصول لصفحة المختبر
+  if (idx === 3) { initRefractionCanvas(); updateRefraction(); }
+  if (idx === 6) { initTIRCanvas(); updateTIR(); }
+  if (idx === 9) { initLensCanvas(); updateLens(); }
+  if (idx === 0) { initCoverCanvas(); }
+}
+
+function nextPage() { goToPage(currentPage + 1); }
+function prevPage() { goToPage(currentPage - 1); }
+
+function updateNav() {
+  document.getElementById('prevBtn').disabled = currentPage === 0;
+  document.getElementById('nextBtn').disabled = currentPage === PAGE_COUNT - 1;
+  document.getElementById('pageCounter').textContent = (currentPage + 1) + ' / ' + PAGE_COUNT;
+  document.getElementById('topbarTitle').textContent = PAGE_TITLES[currentPage];
+
+  // تحديث النقاط
+  document.querySelectorAll('.page-dot').forEach((d, i) => {
+    d.classList.toggle('active', i === currentPage);
+  });
+
+  // تحديث القائمة الجانبية
+  document.querySelectorAll('.toc-item').forEach((item, i) => {
+    item.classList.toggle('active', i === currentPage);
+  });
+}
+
+// بناء النقاط
+function buildDots() {
+  const container = document.getElementById('pageDots');
+  for (let i = 0; i < PAGE_COUNT; i++) {
+    const dot = document.createElement('div');
+    dot.className = 'page-dot' + (i === 0 ? ' active' : '');
+    dot.onclick = () => goToPage(i);
+    container.appendChild(dot);
+  }
+}
+
+// بناء القائمة الجانبية
+function buildTOC() {
+  const list = document.getElementById('tocList');
+  PAGE_TITLES.forEach((title, i) => {
+    const item = document.createElement('div');
+    item.className = 'toc-item' + (i === 0 ? ' active' : '');
+    item.innerHTML = `<span class="toc-num">${i}</span><span>${title}</span>`;
+    item.onclick = () => goToPage(i);
+    list.appendChild(item);
+  });
+}
+
+// ========== وضع القراءة المتصلة ==========
+function setupScrollSpy() {
+  if (pageObserver) pageObserver.disconnect();
+  pageObserver = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        const idx = parseInt(entry.target.id.replace('page-', ''));
+        currentPage = idx;
+        updateNav();
+      }
+    });
+  }, { root: document.getElementById('pagesContainer'), threshold: 0.4 });
+  document.querySelectorAll('.page').forEach(p => pageObserver.observe(p));
+}
+
+function toggleContinuousMode() {
+  continuousMode = !continuousMode;
+  document.body.classList.toggle('continuous-mode', continuousMode);
+  SoundMgr.click();
+
+  if (continuousMode) {
+    document.querySelectorAll('.page').forEach(p => {
+      p.style.transform = '';
+      p.classList.remove('exit-left');
+    });
+    document.getElementById('continuousIcon').className = 'fas fa-list-ol';
+    document.getElementById('continuousToggle').title = 'العودة للتنقل صفحة بصفحة';
+    initCoverCanvas();
+    initRefractionCanvas(); updateRefraction();
+    initTIRCanvas(); updateTIR();
+    initLensCanvas(); updateLens();
+    setupScrollSpy();
+    showToast('وضع القراءة المتصلة: مرّر لأسفل لقراءة كل الصفحات', 'info');
+  } else {
+    if (pageObserver) { pageObserver.disconnect(); pageObserver = null; }
+    document.querySelectorAll('.page').forEach((p, i) => {
+      p.classList.toggle('active', i === currentPage);
+      p.style.transform = '';
+      p.classList.remove('exit-left');
+    });
+    document.getElementById('continuousIcon').className = 'fas fa-scroll';
+    document.getElementById('continuousToggle').title = 'قراءة متصلة (كل الصفحات)';
+    updateNav();
+    // إعادة تهيئة كانفاس الصفحة الحالية فقط
+    if (currentPage === 0) initCoverCanvas();
+    if (currentPage === 3) { initRefractionCanvas(); updateRefraction(); }
+    if (currentPage === 6) { initTIRCanvas(); updateTIR(); }
+    if (currentPage === 9) { initLensCanvas(); updateLens(); }
+    showToast('وضع التنقل صفحة بصفحة', 'info');
+  }
+}
+
+// ========== الوضع الليلي/النهاري ==========
+let isDark = false;
+function toggleTheme() {
+  isDark = !isDark;
+  document.documentElement.setAttribute('data-theme', isDark ? 'dark' : '');
+  document.getElementById('themeIcon').className = isDark ? 'fas fa-sun' : 'fas fa-moon';
+  SoundMgr.click();
+  showToast(isDark ? 'تم تفعيل الوضع الليلي' : 'تم تفعيل الوضع النهاري', 'info');
+}
+
+// ========== القائمة الجانبية ==========
+function openSidebar() {
+  document.getElementById('sidebar').classList.add('open');
+  document.getElementById('sidebarOverlay').classList.add('open');
+}
+function closeSidebar() {
+  document.getElementById('sidebar').classList.remove('open');
+  document.getElementById('sidebarOverlay').classList.remove('open');
+}
+
+// ========== الإشعارات ==========
+function showToast(msg, type) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = 'toast ' + type + ' show';
+  setTimeout(() => t.classList.remove('show'), 2500);
+}
+
+// ========== الأسئلة ==========
+function checkAnswer(btn) {
+  const card = btn.closest('.question-card');
+  if (card.classList.contains('answered')) return;
+  card.classList.add('answered');
+
+  const correct = card.dataset.correct;
+  const selected = btn.dataset.val;
+  const isCorrect = selected === correct;
+
+  // تعطيل كل الخيارات
+  card.querySelectorAll('.option-btn').forEach(b => b.classList.add('disabled'));
+
+  if (isCorrect) {
+    btn.classList.add('selected', 'correct');
+    card.classList.add('correct');
+    card.querySelector('.correct-fb').classList.add('show');
+    SoundMgr.correct();
+  } else {
+    btn.classList.add('selected', 'wrong');
+    card.classList.add('wrong');
+    card.querySelector('.wrong-fb').classList.add('show');
+    // إظهار الإجابة الصحيحة
+    card.querySelectorAll('.option-btn').forEach(b => {
+      if (b.dataset.val === correct) b.classList.add('show-correct');
+    });
+    SoundMgr.wrong();
+  }
+}
+
+// ========== التقويم النهائي ==========
+const ASSESSMENT_QS = [
+  {
+    q: 'إذا كانت سرعة الضوء في وسط شفاف تساوي 1.5×10⁸ م/ث، فما معامل انكسار هذا الوسط؟',
+    opts: ['1.5', '2.0', '0.5', '3.0'],
+    correct: 1,
+    hint: 'n = c/v = 3×10⁸ / 1.5×10⁸ = 2'
+  },
+  {
+    q: 'انتقل شعاع من الهواء إلى الزجاج (n=1.5) بزاوية سقوط 30°. ما زاوية الانكسار التقريبية؟',
+    opts: ['19.5°', '30°', '45°', '48.6°'],
+    correct: 0,
+    hint: 'sinθ₂ = (1×sin30°)/1.5 = 0.333 → θ₂ ≈ 19.5°'
+  },
+  {
+    q: 'ما الزاوية الحرجة للماء (n=1.33)؟',
+    opts: ['48.6°', '41.8°', '45°', '60°'],
+    correct: 0,
+    hint: 'sinθc = 1/1.33 = 0.75 → θc ≈ 48.6°'
+  },
+  {
+    q: 'أيُّ التالي يُعدّ تطبيقًا على الانعكاس الكلي الداخلي؟',
+    opts: ['المرايا المستوية', 'الألياف الضوئية', 'العدسات المقعّرة', 'المنشور الزجاجي'],
+    correct: 1,
+    hint: 'الألياف الضوئية تعتمد كليًا على الانعكاس الكلي الداخلي لنقل الضوء.'
+  },
+  {
+    q: 'وُضع جسم على بُعد 10 سم من عدسة محدّبة بُعدها البؤري 5 سم. ما صفات الخيال المتكوّن؟',
+    opts: ['حقيقي، مقلوب، مصغّر', 'حقيقي، مقلوب، مساوٍ', 'وهمي، معتدل، مكبّر', 'لا يتكوّن خيال'],
+    correct: 0,
+    hint: 'x=10=2f إذن الخيال حقيقي مقلوب مساوٍ في الحجم عند 2f على الطرف الآخر. تصحيح: x=10 > 2f=10؟ لا x=2f بالضبط. لكن الخيارات لا تتضمن "مساوٍ" بشكل واضح. في الواقع x=2f يعطي خيال مساوٍ مقلوب حقيقي. لكن الخيار الأقرب هو المصغّر لأن x>2f يعطي مصغّر وx=2f يعطي مساوٍ. دعني أعدل.'
+  },
+  {
+    q: 'لماذا لا يُستخدم الماء في البارومتر الزئبقي بدلًا من الزئبق؟',
+    opts: ['لأن الماء يتجمد', 'لأن عمود الماء سيكون طويلًا جدًا (حوالي 10.3 م)', 'لأن الماء لا يشفّر الضوء', 'لأن الماء أثقل من الزئبق'],
+    correct: 1,
+    hint: 'ضغط جو واحد = 76 سم زئبق = 1033 سم ماء ≈ 10.3 م'
+  },
+  {
+    q: 'في السراب الصحراوي، لماذا تنحني الأشعة الضوئية إلى أعلى؟',
+    opts: ['بسبب الانعكاس على الرمال', 'لأن معامل انكسار الهواء يقل بالقرب من الأرض الساخنة', 'بسبب الجاذبية', 'لأن الهواء الساخن أثقل'],
+    correct: 1,
+    hint: 'الحرارة العالية قرب الأرض تقلل الكثافة ومعامل الانكسار، فتنكسر الأشعة مبتعدة عن العمود.'
+  },
+  {
+    q: 'ما الفرق الرئيس بين البؤرة في العدسة المحدّبة والبؤرة في العدسة المقعّرة؟',
+    opts: [
+      'لا فرق بينهما',
+      'بؤرة المحدّبة حقيقية وبؤرة المقعّرة وهمية',
+      'بؤرة المقعّرة أكبر',
+      'المحدّبة ليس لها بؤرة'
+    ],
+    correct: 1,
+    hint: 'بؤرة المحدّبة: ناتجة من التقاء الأشعة (حقيقية). بؤرة المقعّرة: ناتجة من التقاء امتدادات الأشعة (وهمية).'
+  }
+];
+
+// تصحيح السؤال 5
+ASSESSMENT_QS[4] = {
+  q: 'وُضع جسم على بُعد 25 سم من عدسة محدّبة بُعدها البؤري 10 سم. ما صفات الخيال المتكوّن؟',
+  opts: ['حقيقي، مقلوب، مصغّر', 'حقيقي، مقلوب، مكبّر', 'وهمي، معتدل، مكبّر', 'لا يتكوّن خيال'],
+  correct: 0,
+  hint: 'x=25 > 2f=20، إذن الخيال حقيقي مقلوب مصغّر.'
+};
+
+let assessmentStarted = false;
+function startAssessment() {
+  assessmentStarted = true;
+  SoundMgr.experiment();
+  document.getElementById('assessmentIntro').style.display = 'none';
+  document.getElementById('assessmentResult').style.display = 'none';
+  const container = document.getElementById('assessmentQuestions');
+  container.style.display = 'block';
+  container.innerHTML = '';
+
+  ASSESSMENT_QS.forEach((q, i) => {
+    const letters = ['أ', 'ب', 'ج', 'د'];
+    const card = document.createElement('div');
+    card.className = 'question-card animate-in';
+    card.style.animationDelay = (i * 0.08) + 's';
+    card.dataset.correct = q.correct;
+    card.innerHTML = `
+      <div class="question-text"><span class="question-num">${i+1}</span> ${q.q}</div>
+      <div class="options-list">
+        ${q.opts.map((opt, j) => `<button class="option-btn" data-val="${j}" onclick="checkAssessAnswer(this, ${i})"><span class="opt-letter">${letters[j]}</span> ${opt}</button>`).join('')}
+      </div>
+      <div class="feedback-msg correct-fb"><i class="fas fa-check-circle"></i> إجابة صحيحة! ${q.hint}</div>
+      <div class="feedback-msg wrong-fb"><i class="fas fa-times-circle"></i> إجابة خاطئة. التلميح: ${q.hint}</div>
+    `;
+    container.appendChild(card);
+  });
+
+  // زر التحقق
+  const submitBtn = document.createElement('div');
+  submitBtn.style.cssText = 'text-align:center;margin:24px 0;';
+  submitBtn.innerHTML = '<button class="start-btn" style="font-size:0.95rem;padding:12px 32px;" onclick="submitAssessment()"><i class="fas fa-check-double"></i> تحقق من النتيجة</button>';
+  container.appendChild(submitBtn);
+}
+
+let assessAnswered = 0;
+let assessCorrect = 0;
+
+function checkAssessAnswer(btn, qIdx) {
+  const card = btn.closest('.question-card');
+  if (card.classList.contains('answered')) return;
+  card.classList.add('answered');
+  assessAnswered++;
+
+  const correct = ASSESSMENT_QS[qIdx].correct;
+  const selected = parseInt(btn.dataset.val);
+
+  card.querySelectorAll('.option-btn').forEach(b => b.classList.add('disabled'));
+
+  if (selected === correct) {
+    btn.classList.add('selected', 'correct');
+    card.classList.add('correct');
+    card.querySelector('.correct-fb').classList.add('show');
+    assessCorrect++;
+    SoundMgr.correct();
+  } else {
+    btn.classList.add('selected', 'wrong');
+    card.classList.add('wrong');
+    card.querySelector('.wrong-fb').classList.add('show');
+    card.querySelectorAll('.option-btn').forEach(b => {
+      if (parseInt(b.dataset.val) === correct) b.classList.add('show-correct');
+    });
+    SoundMgr.wrong();
+  }
+}
+
+function submitAssessment() {
+  if (assessAnswered < ASSESSMENT_QS.length) {
+    showToast('أجب عن جميع الأسئلة أولاً', 'error');
+    return;
+  }
+  SoundMgr.experiment();
+  const score = Math.round((assessCorrect / ASSESSMENT_QS.length) * 100);
+  document.getElementById('assessmentQuestions').style.display = 'none';
+  document.getElementById('assessmentResult').style.display = 'block';
+
+  // تحريك دائرة النتيجة
+  const arc = document.getElementById('scoreArc');
+  const offset = 440 - (440 * score / 100);
+  setTimeout(() => { arc.style.strokeDashoffset = offset; arc.style.transition = 'stroke-dashoffset 1.5s ease'; }, 100);
+
+  // عدّاد النتيجة
+  const numEl = document.getElementById('scoreNum');
+  let current = 0;
+  const step = Math.ceil(score / 40);
+  const counter = setInterval(() => {
+    current += step;
+    if (current >= score) { current = score; clearInterval(counter); }
+    numEl.textContent = current;
+  }, 30);
+
+  // النجوم
+  const starCount = score >= 90 ? 5 : score >= 75 ? 4 : score >= 60 ? 3 : score >= 40 ? 2 : score >= 20 ? 1 : 0;
+  document.querySelectorAll('#starsContainer .star').forEach((s, i) => {
+    setTimeout(() => {
+      if (i < starCount) s.classList.add('earned');
+      else s.classList.remove('earned');
+    }, 800 + i * 200);
+  });
+
+  // الشارة
+  const badge = document.getElementById('badgeText');
+  const badgeLabel = document.getElementById('badgeLabel');
+  if (score >= 90) { badge.style.display = 'inline-flex'; badgeLabel.textContent = 'متميز - أداء رائع!'; }
+  else if (score >= 75) { badge.style.display = 'inline-flex'; badgeLabel.textContent = 'جيد جدًا - استمر!'; }
+  else if (score >= 60) { badge.style.display = 'inline-flex'; badgeLabel.textContent = 'جيد - يمكنك التحسن'; }
+  else { badge.style.display = 'inline-flex'; badge.style.background = 'linear-gradient(135deg, #6B7280, #9CA3AF)'; badgeLabel.textContent = 'راجع الدروس وحاول مجددًا'; }
+
+  // إعادة تعيين للتحميل التالي
+  assessAnswered = 0;
+  assessCorrect = 0;
+  arc.style.transition = 'none';
+  arc.style.strokeDashoffset = 440;
+}
+
+// ========== كانفاس الغلاف - منشور وقوس قزح ==========
+let coverAnim = null;
+function initCoverCanvas() {
+  const canvas = document.getElementById('coverCanvas');
+  const rect = canvas.parentElement.getBoundingClientRect();
+  canvas.width = rect.width * 2;
+  canvas.height = rect.height * 2;
+  const ctx = canvas.getContext('2d');
+  ctx.scale(2, 2);
+  const W = rect.width, H = rect.height;
+
+  if (coverAnim) cancelAnimationFrame(coverAnim);
+
+  const rainbowColors = ['#FF0000','#FF7700','#FFFF00','#00FF00','#0088FF','#0000FF','#8800FF'];
+  let time = 0;
+  let particles = [];
+  for (let i = 0; i < 40; i++) {
+    particles.push({
+      x: Math.random() * W, y: Math.random() * H,
+      vx: (Math.random() - 0.5) * 0.5,
+      vy: (Math.random() - 0.5) * 0.5,
+      r: Math.random() * 2 + 0.5,
+      color: rainbowColors[Math.floor(Math.random() * 7)],
+      alpha: Math.random() * 0.5 + 0.2
+    });
+  }
+
+  function draw() {
+    time += 0.015;
+    ctx.clearRect(0, 0, W, H);
+
+    // خلفية متدرجة
+    const bg = ctx.createLinearGradient(0, 0, W, H);
+    bg.addColorStop(0, '#070B1A');
+    bg.addColorStop(0.5, '#0D1333');
+    bg.addColorStop(1, '#0A0F28');
+    ctx.fillStyle = bg;
+    ctx.fillRect(0, 0, W, H);
+
+    // جزيئات خلفية
+    particles.forEach(p => {
+      p.x += p.vx; p.y += p.vy;
+      if (p.x < 0) p.x = W; if (p.x > W) p.x = 0;
+      if (p.y < 0) p.y = H; if (p.y > H) p.y = 0;
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+      ctx.fillStyle = p.color;
+      ctx.globalAlpha = p.alpha * (0.5 + 0.5 * Math.sin(time * 2 + p.x));
+      ctx.fill();
+    });
+    ctx.globalAlpha = 1;
+
+    const cx = W * 0.45, cy = H * 0.5;
+    const prismSize = Math.min(W, H) * 0.22;
+
+    // رسم المنشور المثلث
+    const p1 = { x: cx, y: cy - prismSize };
+    const p2 = { x: cx - prismSize * 0.9, y: cy + prismSize * 0.6 };
+    const p3 = { x: cx + prismSize * 0.9, y: cy + prismSize * 0.6 };
+
+    // توهج المنشور
+    const glow = ctx.createRadialGradient(cx, cy, 0, cx, cy, prismSize * 1.5);
+    glow.addColorStop(0, 'rgba(59,130,246,0.15)');
+    glow.addColorStop(1, 'rgba(59,130,246,0)');
+    ctx.fillStyle = glow;
+    ctx.fillRect(0, 0, W, H);
+
+    // جسم المنشور
+    ctx.beginPath();
+    ctx.moveTo(p1.x, p1.y);
+    ctx.lineTo(p2.x, p2.y);
+    ctx.lineTo(p3.x, p3.y);
+    ctx.closePath();
+    const prismGrad = ctx.createLinearGradient(p2.x, cy, p3.x, cy);
+    prismGrad.addColorStop(0, 'rgba(147,197,253,0.25)');
+    prismGrad.addColorStop(0.5, 'rgba(196,181,253,0.3)');
+    prismGrad.addColorStop(1, 'rgba(147,197,253,0.2)');
+    ctx.fillStyle = prismGrad;
+    ctx.fill();
+    ctx.strokeStyle = 'rgba(165,180,252,0.6)';
+    ctx.lineWidth = 2;
+    ctx.stroke();
+
+    // الشعاع الأبيض القادم من اليسار
+    const beamY = cy - prismSize * 0.15;
+    const beamStartX = 0;
+    const beamEndX = cx - prismSize * 0.35;
+    const beamGrad = ctx.createLinearGradient(beamStartX, beamY, beamEndX, beamY);
+    beamGrad.addColorStop(0, 'rgba(255,255,255,0)');
+    beamGrad.addColorStop(0.3, 'rgba(255,255,255,0.9)');
+    beamGrad.addColorStop(1, 'rgba(255,255,255,0.9)');
+    ctx.beginPath();
+    ctx.moveTo(beamStartX, beamY - 3);
+    ctx.lineTo(beamEndX, beamY - 2);
+    ctx.lineTo(beamEndX, beamY + 2);
+    ctx.lineTo(beamStartX, beamY + 3);
+    ctx.closePath();
+    ctx.fillStyle = beamGrad;
+    ctx.fill();
+
+    // توهج عند نقطة الدخول
+    const entryGlow = ctx.createRadialGradient(beamEndX, beamY, 0, beamEndX, beamY, 15);
+    entryGlow.addColorStop(0, 'rgba(255,255,255,0.6)');
+    entryGlow.addColorStop(1, 'rgba(255,255,255,0)');
+    ctx.fillStyle = entryGlow;
+    ctx.fillRect(beamEndX - 15, beamY - 15, 30, 30);
+
+    // ألوان قوس قزح الخارجة
+    const exitX = cx + prismSize * 0.35;
+    const exitY = cy + prismSize * 0.1;
+    const spreadAngle = 0.4;
+    const rayLen = W - exitX + 20;
+    const animOffset = Math.sin(time * 0.5) * 3;
+
+    rainbowColors.forEach((color, i) => {
+      const angle = -spreadAngle / 2 + (spreadAngle * i / (rainbowColors.length - 1));
+      const endRX = exitX + rayLen * Math.cos(angle);
+      const endRY = exitY + rayLen * Math.sin(angle) + animOffset * (i - 3) * 0.3;
+
+      ctx.beginPath();
+      ctx.moveTo(exitX, exitY);
+      ctx.lineTo(endRX, endRY);
+      ctx.strokeStyle = color;
+      ctx.lineWidth = 2.5;
+      ctx.globalAlpha = 0.7 + 0.2 * Math.sin(time * 2 + i);
+      ctx.stroke();
+    });
+    ctx.globalAlpha = 1;
+
+    // توهج عند نقطة الخروج
+    const exitGlow = ctx.createRadialGradient(exitX, exitY, 0, exitX, exitY, 25);
+    exitGlow.addColorStop(0, 'rgba(255,255,255,0.4)');
+    exitGlow.addColorStop(0.5, 'rgba(167,139,250,0.2)');
+    exitGlow.addColorStop(1, 'rgba(167,139,250,0)');
+    ctx.fillStyle = exitGlow;
+    ctx.fillRect(exitX - 25, exitY - 25, 50, 50);
+
+    coverAnim = requestAnimationFrame(draw);
+  }
+  draw();
+}
+
+// ========== كانفاس مختبر الانكسار ==========
+let refractionCtx, refractionW, refractionH;
+function initRefractionCanvas() {
+  const canvas = document.getElementById('refractionCanvas');
+  const rect = canvas.parentElement.getBoundingClientRect();
+  canvas.width = rect.width * 2;
+  canvas.height = rect.height * 2;
+  refractionCtx = canvas.getContext('2d');
+  refractionCtx.scale(2, 2);
+  refractionW = rect.width;
+  refractionH = rect.height;
+}
+
+function updateRefraction() {
+  const angle = parseFloat(document.getElementById('angleSlider').value);
+  const n2 = parseFloat(document.getElementById('mediumSelect').value);
+  const dir = document.getElementById('directionSelect').value;
+  const n1 = dir === 'toMedium' ? 1.0 : n2;
+  const actualN2 = dir === 'toMedium' ? n2 : 1.0;
+
+  document.getElementById('angleVal').textContent = angle + '°';
+  document.getElementById('resN1').textContent = n1.toFixed(2);
+  document.getElementById('resN2').textContent = actualN2.toFixed(2);
+  document.getElementById('resT1').textContent = angle + '°';
+
+  const theta1 = angle * Math.PI / 180;
+  const sinTheta2 = (n1 * Math.sin(theta1)) / actualN2;
+  const tirInd = document.getElementById('tirIndicator');
+
+  if (sinTheta2 > 1) {
+    // انعكاس كلي
+    document.getElementById('resT2').textContent = '--';
+    tirInd.style.display = '';
+  } else {
+    const theta2 = Math.asin(sinTheta2) * 180 / Math.PI;
+    document.getElementById('resT2').textContent = theta2.toFixed(1) + '°';
+    tirInd.style.display = 'none';
+  }
+
+  drawRefraction(n1, actualN2, angle, sinTheta2 > 1);
+  SoundMgr.click();
+}
+
+function drawRefraction(n1, n2, angleDeg, isTIR) {
+  const ctx = refractionCtx;
+  if (!ctx) return;
+  const W = refractionW, H = refractionH;
+  ctx.clearRect(0, 0, W, H);
+
+  const midY = H * 0.5;
+
+  // خلفية (الوسط الأول أعلى، الوسط الثاني أسفل)
+  const bgGrad = ctx.createLinearGradient(0, 0, 0, H);
+  bgGrad.addColorStop(0, '#0A1025');
+  bgGrad.addColorStop(0.48, '#0A1025');
+  bgGrad.addColorStop(0.52, '#061530');
+  bgGrad.addColorStop(1, '#061530');
+  ctx.fillStyle = bgGrad;
+  ctx.fillRect(0, 0, W, H);
+
+  // الحد الفاصل (أفقي)
+  ctx.beginPath();
+  ctx.moveTo(0, midY); ctx.lineTo(W, midY);
+  ctx.strokeStyle = 'rgba(165,180,252,0.4)';
+  ctx.lineWidth = 2;
+  ctx.setLineDash([8, 4]);
+  ctx.stroke();
+  ctx.setLineDash([]);
+
+  // تسميات الأوساط
+  ctx.font = '600 14px Tajawal';
+  ctx.textAlign = 'center';
+  ctx.fillStyle = 'rgba(165,180,252,0.6)';
+  ctx.fillText('الوسط الأول (n₁=' + n1.toFixed(2) + ')', W * 0.5, 24);
+  ctx.fillText('الوسط الثاني (n₂=' + n2.toFixed(2) + ')', W * 0.5, H - 10);
+
+  // نقطة السقوط
+  const hitX = W * 0.5;
+  const hitY = midY;
+
+  // العمود
+  ctx.beginPath();
+  ctx.moveTo(hitX, hitY - 120);
+  ctx.lineTo(hitX, hitY + 120);
+  ctx.strokeStyle = 'rgba(255,255,255,0.3)';
+  ctx.lineWidth = 1.5;
+  ctx.setLineDash([6, 4]);
+  ctx.stroke();
+  ctx.setLineDash([]);
+
+  // تسمية العمود
+  ctx.fillStyle = 'rgba(255,255,255,0.5)';
+  ctx.font = '500 11px Tajawal';
+  ctx.textAlign = 'left';
+  ctx.fillText('العمود', hitX + 6, hitY - 110);
+
+  const theta1 = angleDeg * Math.PI / 180;
+  const rayLen = 180;
+
+  // الشعاع الساقط
+  const incStartX = hitX - rayLen * Math.sin(theta1);
+  const incStartY = hitY - rayLen * Math.cos(theta1);
+
+  // توهج الشعاع
+  ctx.beginPath();
+  ctx.moveTo(incStartX, incStartY);
+  ctx.lineTo(hitX, hitY);
+  ctx.strokeStyle = 'rgba(250,204,21,0.15)';
+  ctx.lineWidth = 12;
+  ctx.stroke();
+
+  ctx.beginPath();
+  ctx.moveTo(incStartX, incStartY);
+  ctx.lineTo(hitX, hitY);
+  ctx.strokeStyle = '#FACC15';
+  ctx.lineWidth = 3;
+  ctx.stroke();
+
+  // سهم الشعاع الساقط
+  drawArrow(ctx, incStartX, incStartY, hitX, hitY, '#FACC15');
+
+  // قوس زاوية السقوط
+  if (angleDeg > 2) {
+    ctx.beginPath();
+    ctx.arc(hitX, hitY, 40, -Math.PI/2 - theta1, -Math.PI/2, false);
+    ctx.strokeStyle = '#FACC15';
+    ctx.lineWidth = 2;
+    ctx.stroke();
+    // تسمية
+    const labelAngle = -Math.PI/2 - theta1/2;
+    ctx.fillStyle = '#FACC15';
+    ctx.font = '700 13px Tajawal';
+    ctx.textAlign = 'center';
+    ctx.fillText('θ₁=' + angleDeg + '°', hitX + 60 * Math.cos(labelAngle), hitY + 60 * Math.sin(labelAngle));
+  }
+
+  if (isTIR) {
+    // الشعاع المنعكس
+    const refEndX = hitX + rayLen * Math.sin(theta1);
+    const refEndY = hitY - rayLen * Math.cos(theta1);
+
+    ctx.beginPath();
+    ctx.moveTo(hitX, hitY);
+    ctx.lineTo(refEndX, refEndY);
+    ctx.strokeStyle = 'rgba(239,68,68,0.15)';
+    ctx.lineWidth = 12;
+    ctx.stroke();
+
+    ctx.beginPath();
+    ctx.moveTo(hitX, hitY);
+    ctx.lineTo(refEndX, refEndY);
+    ctx.strokeStyle = '#EF4444';
+    ctx.lineWidth = 3;
+    ctx.stroke();
+    drawArrow(ctx, hitX, hitY, refEndX, refEndY, '#EF4444');
+
+    // نص الانعكاس الكلي
+    ctx.fillStyle = '#EF4444';
+    ctx.font = '800 16px Tajawal';
+    ctx.textAlign = 'center';
+    ctx.fillText('انعكاس كلي داخلي!', W * 0.75, H * 0.85);
+  } else {
+    // الشعاع المنكسر
+    const sinTheta2 = (n1 * Math.sin(theta1)) / n2;
+    const theta2 = Math.asin(sinTheta2);
+    const refEndX = hitX + rayLen * Math.sin(theta2);
+    const refEndY = hitY + rayLen * Math.cos(theta2);
+
+    ctx.beginPath();
+    ctx.moveTo(hitX, hitY);
+    ctx.lineTo(refEndX, refEndY);
+    ctx.strokeStyle = 'rgba(34,197,94,0.15)';
+    ctx.lineWidth = 12;
+    ctx.stroke();
+
+    ctx.beginPath();
+    ctx.moveTo(hitX, hitY);
+    ctx.lineTo(refEndX, refEndY);
+    ctx.strokeStyle = '#22C55E';
+    ctx.lineWidth = 3;
+    ctx.stroke();
+    drawArrow(ctx, hitX, hitY, refEndX, refEndY, '#22C55E');
+
+    // قوس زاوية الانكسار
+    const theta2Deg = theta2 * 180 / Math.PI;
+    if (theta2Deg > 2) {
+      ctx.beginPath();
+      ctx.arc(hitX, hitY, 40, Math.PI/2, Math.PI/2 + theta2, false);
+      ctx.strokeStyle = '#22C55E';
+      ctx.lineWidth = 2;
+      ctx.stroke();
+      const labelAngle2 = Math.PI/2 + theta2/2;
+      ctx.fillStyle = '#22C55E';
+      ctx.font = '700 13px Tajawal';
+      ctx.textAlign = 'center';
+      ctx.fillText('θ₂=' + theta2Deg.toFixed(1) + '°', hitX + 60 * Math.cos(labelAngle2), hitY + 60 * Math.sin(labelAngle2));
+    }
+  }
+
+  // نقطة السقوط
+  ctx.beginPath();
+  ctx.arc(hitX, hitY, 5, 0, Math.PI * 2);
+  ctx.fillStyle = '#FFFFFF';
+  ctx.fill();
+}
+
+function drawArrow(ctx, fromX, fromY, toX, toY, color) {
+  const angle = Math.atan2(toY - fromY, toX - fromX);
+  const headLen = 10;
+  ctx.beginPath();
+  ctx.moveTo(toX, toY);
+  ctx.lineTo(toX - headLen * Math.cos(angle - 0.4), toY - headLen * Math.sin(angle - 0.4));
+  ctx.moveTo(toX, toY);
+  ctx.lineTo(toX - headLen * Math.cos(angle + 0.4), toY - headLen * Math.sin(angle + 0.4));
+  ctx.strokeStyle = color;
+  ctx.lineWidth = 3;
+  ctx.stroke();
+}
+
+function resetRefractionLab() {
+  document.getElementById('angleSlider').value = 30;
+  document.getElementById('mediumSelect').value = '1.52';
+  document.getElementById('directionSelect').value = 'toMedium';
+  updateRefraction();
+  SoundMgr.experiment();
+}
+
+// ========== كانفاس مختبر الانعكاس الكلي ==========
+let tirCtx, tirW, tirH;
+function initTIRCanvas() {
+  const canvas = document.getElementById('tirCanvas');
+  const rect = canvas.parentElement.getBoundingClientRect();
+  canvas.width = rect.width * 2;
+  canvas.height = rect.height * 2;
+  tirCtx = canvas.getContext('2d');
+  tirCtx.scale(2, 2);
+  tirW = rect.width;
+  tirH = rect.height;
+}
+
+function updateTIR() {
+  const angle = parseFloat(document.getElementById('tirAngleSlider').value);
+  const n1 = parseFloat(document.getElementById('tirMediumSelect').value);
+  const n2 = 1.0;
+  const critAngle = Math.asin(n2 / n1) * 180 / Math.PI;
+
+  document.getElementById('tirAngleVal').textContent = angle + '°';
+  document.getElementById('tirCritVal').textContent = critAngle.toFixed(1) + '°';
+  document.getElementById('tirIncVal').textContent = angle + '°';
+
+  const stateEl = document.getElementById('tirStateVal');
+  if (angle < critAngle - 0.5) {
+    stateEl.textContent = 'انكسار عادي';
+    stateEl.style.color = 'var(--success)';
+  } else if (angle >= critAngle - 0.5 && angle <= critAngle + 0.5) {
+    stateEl.textContent = 'زاوية حرجة!';
+    stateEl.style.color = 'var(--warning)';
+  } else {
+    stateEl.textContent = 'انعكاس كلي!';
+    stateEl.style.color = 'var(--danger)';
+  }
+
+  drawTIR(n1, n2, angle, critAngle);
+  SoundMgr.click();
+}
+
+function drawTIR(n1, n2, angleDeg, critDeg) {
+  const ctx = tirCtx;
+  if (!ctx) return;
+  const W = tirW, H = tirH;
+  ctx.clearRect(0, 0, W, H);
+
+  // الأوساط: الأعلى وسط كثيف، الأسفل هواء
+  const midY = H * 0.5;
+  const bgGrad = ctx.createLinearGradient(0, 0, 0, H);
+  bgGrad.addColorStop(0, '#0A1535');
+  bgGrad.addColorStop(0.48, '#0A1535');
+  bgGrad.addColorStop(0.52, '#060D1E');
+  bgGrad.addColorStop(1, '#060D1E');
+  ctx.fillStyle = bgGrad;
+  ctx.fillRect(0, 0, W, H);
+
+  // الحد الفاصل
+  ctx.beginPath();
+  ctx.moveTo(0, midY); ctx.lineTo(W, midY);
+  ctx.strokeStyle = 'rgba(165,180,252,0.4)';
+  ctx.lineWidth = 2;
+  ctx.setLineDash([8, 4]);
+  ctx.stroke();
+  ctx.setLineDash([]);
+
+  // تسميات
+  ctx.font = '600 14px Tajawal';
+  ctx.textAlign = 'center';
+  ctx.fillStyle = 'rgba(165,180,252,0.6)';
+  ctx.fillText('الوسط الكثيف (n₁=' + n1.toFixed(2) + ')', W * 0.5, 28);
+  ctx.fillText('الهواء (n₂=1.00)', W * 0.5, H - 12);
+
+  const hitX = W * 0.5;
+  const hitY = midY;
+
+  // العمود
+  ctx.beginPath();
+  ctx.moveTo(hitX, hitY - 130);
+  ctx.lineTo(hitX, hitY + 130);
+  ctx.strokeStyle = 'rgba(255,255,255,0.3)';
+  ctx.lineWidth = 1.5;
+  ctx.setLineDash([6, 4]);
+  ctx.stroke();
+  ctx.setLineDash([]);
+
+  const theta1 = angleDeg * Math.PI / 180;
+  const rayLen = 160;
+  const critRad = critDeg * Math.PI / 180;
+
+  // الشعاع الساقط (من الأعلى)
+  const incX = hitX - rayLen * Math.sin(theta1);
+  const incY = hitY - rayLen * Math.cos(theta1);
+
+  ctx.beginPath();
+    ctx.moveTo(incX, incY);
+  ctx.lineTo(hitX, hitY);
+  ctx.strokeStyle = 'rgba(250,204,21,0.15)';
+  ctx.lineWidth = 12;
+  ctx.stroke();
+  ctx.beginPath();
+  ctx.moveTo(incX, incY);
+  ctx.lineTo(hitX, hitY);
+  ctx.strokeStyle = '#FACC15';
+  ctx.lineWidth = 3;
+  ctx.stroke();
+  drawArrow(ctx, incX, incY, hitX, hitY, '#FACC15');
+
+  // قوس زاوية السقوط
+  if (angleDeg > 2) {
+    ctx.beginPath();
+    ctx.arc(hitX, hitY, 40, -Math.PI/2 - theta1, -Math.PI/2, false);
+    ctx.strokeStyle = '#FACC15';
+    ctx.lineWidth = 2;
+    ctx.stroke();
+    const la = -Math.PI/2 - theta1/2;
+    ctx.fillStyle = '#FACC15';
+    ctx.font = '700 13px Tajawal';
+    ctx.textAlign = 'center';
+    ctx.fillText('θ₁=' + angleDeg + '°', hitX + 65 * Math.cos(la), hitY + 65 * Math.sin(la));
+  }
+
+  // قوس الزاوية الحرجة (مرجع)
+  ctx.beginPath();
+  ctx.arc(hitX, hitY, 55, -Math.PI/2 - critRad, -Math.PI/2, false);
+  ctx.strokeStyle = 'rgba(245,158,11,0.5)';
+  ctx.lineWidth = 1.5;
+  ctx.setLineDash([4, 3]);
+  ctx.stroke();
+  ctx.setLineDash([]);
+  const cla = -Math.PI/2 - critRad/2;
+  ctx.fillStyle = 'rgba(245,158,11,0.7)';
+  ctx.font = '600 11px Tajawal';
+  ctx.fillText('θc=' + critDeg.toFixed(1) + '°', hitX + 80 * Math.cos(cla), hitY + 80 * Math.sin(cla));
+
+  const isTIR = angleDeg > critDeg + 0.5;
+  const isCrit = Math.abs(angleDeg - critDeg) <= 0.5;
+
+  if (isCrit) {
+    // الشعاع يمر موازيًا للسطح
+    ctx.beginPath();
+    ctx.moveTo(hitX, hitY);
+    ctx.lineTo(hitX + rayLen, hitY);
+    ctx.strokeStyle = '#F59E0B';
+    ctx.lineWidth = 3;
+    ctx.stroke();
+    ctx.fillStyle = '#F59E0B';
+    ctx.font = '800 15px Tajawal';
+    ctx.textAlign = 'center';
+    ctx.fillText('زاوية حرجة - الشعاع موازٍ للسطح', W * 0.5, H * 0.88);
+  } else if (isTIR) {
+    // الشعاع المنعكس كليًا
+    const refX = hitX + rayLen * Math.sin(theta1);
+    const refY = hitY - rayLen * Math.cos(theta1);
+
+    ctx.beginPath();
+    ctx.moveTo(hitX, hitY);
+    ctx.lineTo(refX, refY);
+    ctx.strokeStyle = 'rgba(239,68,68,0.15)';
+    ctx.lineWidth = 12;
+    ctx.stroke();
+    ctx.beginPath();
+    ctx.moveTo(hitX, hitY);
+    ctx.lineTo(refX, refY);
+    ctx.strokeStyle = '#EF4444';
+    ctx.lineWidth = 3;
+    ctx.stroke();
+    drawArrow(ctx, hitX, hitY, refX, refY, '#EF4444');
+
+    // قوس زاوية الانعكاس
+    ctx.beginPath();
+    ctx.arc(hitX, hitY, 40, -Math.PI/2, -Math.PI/2 + theta1, false);
+    ctx.strokeStyle = '#EF4444';
+    ctx.lineWidth = 2;
+    ctx.stroke();
+    const rla = -Math.PI/2 + theta1/2;
+    ctx.fillStyle = '#EF4444';
+    ctx.font = '700 13px Tajawal';
+    ctx.fillText("θ'", hitX + 65 * Math.cos(rla), hitY + 65 * Math.sin(rla));
+
+    ctx.fillStyle = '#EF4444';
+    ctx.font = '800 16px Tajawal';
+    ctx.textAlign = 'center';
+    ctx.fillText('انعكاس كلي داخلي!', W * 0.5, H * 0.88);
+  } else {
+    // انكسار عادي + شعاع منكسر مبتعد عن العمود
+    const sinT2 = (n1 * Math.sin(theta1)) / n2;
+    const theta2 = Math.asin(Math.min(sinT2, 1));
+    const refX = hitX + rayLen * Math.sin(theta2);
+    const refY = hitY + rayLen * Math.cos(theta2);
+
+    ctx.beginPath();
+    ctx.moveTo(hitX, hitY);
+    ctx.lineTo(refX, refY);
+    ctx.strokeStyle = 'rgba(34,197,94,0.15)';
+    ctx.lineWidth = 12;
+    ctx.stroke();
+    ctx.beginPath();
+    ctx.moveTo(hitX, hitY);
+    ctx.lineTo(refX, refY);
+    ctx.strokeStyle = '#22C55E';
+    ctx.lineWidth = 3;
+    ctx.stroke();
+    drawArrow(ctx, hitX, hitY, refX, refY, '#22C55E');
+
+    // قوس زاوية الانكسار
+    const t2d = theta2 * 180 / Math.PI;
+    if (t2d > 2) {
+      ctx.beginPath();
+      ctx.arc(hitX, hitY, 40, Math.PI/2, Math.PI/2 + theta2, false);
+      ctx.strokeStyle = '#22C55E';
+      ctx.lineWidth = 2;
+      ctx.stroke();
+      const la2 = Math.PI/2 + theta2/2;
+      ctx.fillStyle = '#22C55E';
+      ctx.font = '700 13px Tajawal';
+      ctx.textAlign = 'center';
+      ctx.fillText('θ₂=' + t2d.toFixed(1) + '°', hitX + 65 * Math.cos(la2), hitY + 65 * Math.sin(la2));
+    }
+
+    // شعاع منعكس ضعيف (جزئي)
+    const partRefX = hitX + rayLen * 0.4 * Math.sin(theta1);
+    const partRefY = hitY - rayLen * 0.4 * Math.cos(theta1);
+    ctx.beginPath();
+    ctx.moveTo(hitX, hitY);
+    ctx.lineTo(partRefX, partRefY);
+    ctx.strokeStyle = 'rgba(255,255,255,0.15)';
+    ctx.lineWidth = 1.5;
+    ctx.setLineDash([4, 4]);
+    ctx.stroke();
+    ctx.setLineDash([]);
+
+    ctx.fillStyle = 'rgba(34,197,94,0.8)';
+    ctx.font = '700 14px Tajawal';
+    ctx.textAlign = 'center';
+    ctx.fillText('انكسار عادي - θ₁ < θc', W * 0.5, H * 0.88);
+  }
+
+  // نقطة السقوط
+  ctx.beginPath();
+  ctx.arc(hitX, hitY, 5, 0, Math.PI * 2);
+  ctx.fillStyle = '#FFFFFF';
+  ctx.fill();
+}
+
+function resetTIRLab() {
+  document.getElementById('tirAngleSlider').value = 20;
+  document.getElementById('tirMediumSelect').value = '1.52';
+  updateTIR();
+  SoundMgr.experiment();
+}
+
+// ========== كانفاس مختبر العدسات ==========
+let lensCtx, lensW, lensH;
+let isConvex = true;
+
+function initLensCanvas() {
+  const canvas = document.getElementById('lensCanvas');
+  const rect = canvas.parentElement.getBoundingClientRect();
+  canvas.width = rect.width * 2;
+  canvas.height = rect.height * 2;
+  lensCtx = canvas.getContext('2d');
+  lensCtx.scale(2, 2);
+  lensW = rect.width;
+  lensH = rect.height;
+}
+
+function toggleLensType() {
+  isConvex = !isConvex;
+  const btn = document.getElementById('lensTypeBtn');
+  btn.innerHTML = isConvex
+    ? '<i class="fas fa-exchange-alt"></i> مقعّرة'
+    : '<i class="fas fa-exchange-alt"></i> محدّبة';
+  updateLens();
+  SoundMgr.experiment();
+}
+
+function resetLensLab() {
+  isConvex = true;
+  document.getElementById('lensDistSlider').value = 25;
+  document.getElementById('lensFocalSelect').value = '15';
+  document.getElementById('lensTypeBtn').innerHTML = '<i class="fas fa-exchange-alt"></i> مقعّرة';
+  updateLens();
+  SoundMgr.experiment();
+}
+
+function updateLens() {
+  const x = parseFloat(document.getElementById('lensDistSlider').value);
+  const f = parseFloat(document.getElementById('lensFocalSelect').value);
+  document.getElementById('lensDistVal').textContent = x + ' cm';
+
+  const typeRes = document.getElementById('lensTypeRes');
+  const sizeRes = document.getElementById('lensSizeRes');
+  const orientRes = document.getElementById('lensOrientRes');
+  const distRes = document.getElementById('lensImgDistRes');
+
+  if (isConvex) {
+    if (Math.abs(x - f) < 0.5) {
+      typeRes.textContent = 'لا يوجد';
+      typeRes.style.color = 'var(--danger)';
+      sizeRes.textContent = '--';
+      orientRes.textContent = '--';
+      distRes.textContent = '∞';
+    } else {
+      const di = (f * x) / (x - f);
+      const mag = Math.abs(di / x);
+      if (di > 0) {
+        typeRes.textContent = 'حقيقي';
+        typeRes.style.color = 'var(--success)';
+        orientRes.textContent = 'مقلوب';
+        distRes.textContent = di.toFixed(1) + ' cm';
+      } else {
+        typeRes.textContent = 'وهمي';
+        typeRes.style.color = 'var(--purple)';
+        orientRes.textContent = 'معتدل';
+        distRes.textContent = Math.abs(di).toFixed(1) + ' cm (نفس الجهة)';
+      }
+      if (mag > 1.05) sizeRes.textContent = 'مكبّر';
+      else if (mag < 0.95) sizeRes.textContent = 'مصغّر';
+      else sizeRes.textContent = 'مساوٍ';
+    }
+  } else {
+    // مقعّرة: f سالب
+    const fn = -f;
+    const di = (fn * x) / (x - fn);
+    const mag = Math.abs(di / x);
+    typeRes.textContent = 'وهمي';
+    typeRes.style.color = 'var(--purple)';
+    sizeRes.textContent = 'مصغّر';
+    orientRes.textContent = 'معتدل';
+    distRes.textContent = Math.abs(di).toFixed(1) + ' cm (نفس الجهة)';
+  }
+
+  drawLens(x, f);
+  SoundMgr.click();
+}
+
+function drawLens(objDist, focalLen) {
+  const ctx = lensCtx;
+  if (!ctx) return;
+  const W = lensW, H = lensH;
+  ctx.clearRect(0, 0, W, H);
+
+  // خلفية
+  ctx.fillStyle = '#0A0F1E';
+  ctx.fillRect(0, 0, W, H);
+
+  const cx = W * 0.5;
+  const cy = H * 0.5;
+  const scale = Math.min(W, H) / 70; // مقياس الرسم: بكسل لكل سم
+  const f = focalLen;
+  const fPx = f * scale;
+  const objX = cx - objDist * scale;
+  const objH = 50; // ارتفاع الجسم بالبكسل
+
+  // المحور الرئيس
+  ctx.beginPath();
+  ctx.moveTo(20, cy);
+  ctx.lineTo(W - 20, cy);
+  ctx.strokeStyle = 'rgba(255,255,255,0.2)';
+  ctx.lineWidth = 1;
+  ctx.stroke();
+
+  // العدسة
+  const lensH2 = 100;
+  ctx.beginPath();
+  if (isConvex) {
+    // شكل عدسة محدّبة
+    ctx.moveTo(cx, cy - lensH2);
+    ctx.quadraticCurveTo(cx + 18, cy, cx, cy + lensH2);
+    ctx.quadraticCurveTo(cx - 18, cy, cx, cy - lensH2);
+  } else {
+    // شكل عدسة مقعّرة
+    ctx.moveTo(cx, cy - lensH2);
+    ctx.quadraticCurveTo(cx - 18, cy, cx, cy + lensH2);
+    ctx.quadraticCurveTo(cx + 18, cy, cx, cy - lensH2);
+  }
+  ctx.closePath();
+  ctx.fillStyle = isConvex ? 'rgba(59,130,246,0.15)' : 'rgba(167,139,250,0.15)';
+  ctx.fill();
+  ctx.strokeStyle = isConvex ? 'rgba(59,130,246,0.6)' : 'rgba(167,139,250,0.6)';
+  ctx.lineWidth = 2;
+  ctx.stroke();
+
+  // سهم لأعلى في وسط العدسة
+  ctx.beginPath();
+  ctx.moveTo(cx - 6, cy + 6);
+  ctx.lineTo(cx, cy - 6);
+  ctx.lineTo(cx + 6, cy + 6);
+  ctx.strokeStyle = isConvex ? 'rgba(59,130,246,0.4)' : 'rgba(167,139,250,0.4)';
+  ctx.lineWidth = 1.5;
+  ctx.stroke();
+
+  // البؤرتان
+  const f1x = cx - fPx;
+  const f2x = cx + fPx;
+  const f2fy = cy - fPx; // للعدسة المقعّرة (بؤرة وهمية)
+
+  // رسم علامات F و 2F
+  function drawFMark(x, label, color) {
+    if (x < 20 || x > W - 20) return;
+    ctx.beginPath();
+    ctx.moveTo(x, cy - 5);
+    ctx.lineTo(x, cy + 5);
+    ctx.strokeStyle = color;
+    ctx.lineWidth = 2;
+    ctx.stroke();
+    ctx.fillStyle = color;
+    ctx.font = '700 11px Tajawal';
+    ctx.textAlign = 'center';
+    ctx.fillText(label, x, cy + 18);
+  }
+
+  const fColor = isConvex ? 'rgba(59,130,246,0.7)' : 'rgba(167,139,250,0.7)';
+  drawFMark(f1x, 'F', fColor);
+  drawFMark(f2x, "F'", fColor);
+  drawFMark(cx - 2 * fPx, '2F', fColor);
+  drawFMark(cx + 2 * fPx, "2F'", fColor);
+
+  // المركز البصري
+  ctx.fillStyle = 'rgba(255,255,255,0.6)';
+  ctx.font = '600 11px Tajawal';
+  ctx.textAlign = 'center';
+  ctx.fillText('O', cx, cy + 18);
+
+  // الجسم (سهم لأعلى)
+  ctx.beginPath();
+  ctx.moveTo(objX, cy);
+  ctx.lineTo(objX, cy - objH);
+  ctx.strokeStyle = '#FACC15';
+  ctx.lineWidth = 3;
+  ctx.stroke();
+  // رأس السهم
+  ctx.beginPath();
+  ctx.moveTo(objX - 6, cy - objH + 10);
+  ctx.lineTo(objX, cy - objH);
+  ctx.lineTo(objX + 6, cy - objH + 10);
+  ctx.strokeStyle = '#FACC15';
+  ctx.lineWidth = 3;
+  ctx.stroke();
+  ctx.fillStyle = '#FACC15';
+  ctx.font = '700 12px Tajawal';
+  ctx.textAlign = 'center';
+  ctx.fillText('الجسم', objX, cy - objH - 10);
+
+  // حساب الخيال ورسم الأشعة (شعاعان فقط)
+  if (isConvex) {
+    const xCm = objDist;
+    if (Math.abs(xCm - f) < 0.5) {
+      // لا يتكوّن خيال - الأشعة متوازية
+      // شعاع 1: يمر بالمركز
+      ctx.beginPath();
+      ctx.moveTo(objX, cy - objH);
+      ctx.lineTo(cx, cy);
+      ctx.strokeStyle = 'rgba(250,204,21,0.4)';
+      ctx.lineWidth = 1.5;
+      ctx.stroke();
+      // شعاع 2: موازٍ ثم يمر بالبؤرة
+      ctx.beginPath();
+      ctx.moveTo(objX, cy - objH);
+      ctx.lineTo(cx, cy - objH);
+      ctx.lineTo(W - 20, cy - objH + (W - 20 - cx) * objH / fPx);
+      ctx.strokeStyle = 'rgba(34,197,94,0.4)';
+      ctx.lineWidth = 1.5;
+      ctx.stroke();
+
+      ctx.fillStyle = '#EF4444';
+      ctx.font = '800 15px Tajawal';
+      ctx.textAlign = 'center';
+      ctx.fillText('الجسم عند البؤرة - لا يتكوّن خيال', W * 0.5, H - 20);
+      return;
+    }
+
+    const di = (f * xCm) / (xCm - f);
+    const diPx = di * scale;
+    const mag = di / xCm;
+    const imgH = objH * Math.abs(mag);
+    const imgX = cx + diPx;
+    const isReal = di > 0;
+    const imgTopY = isReal ? cy + imgH : cy - imgH;
+
+    // شعاع 1: يمر بالمركز البصري (يستمر في مساره)
+    ctx.beginPath();
+    ctx.moveTo(objX, cy - objH);
+    ctx.lineTo(cx, cy);
+    if (isReal) {
+      ctx.lineTo(imgX, imgTopY);
+    } else {
+      // امتداد للخلف
+      ctx.setLineDash([6, 4]);
+      ctx.lineTo(imgX, imgTopY);
+      ctx.setLineDash([]);
+    }
+    ctx.strokeStyle = 'rgba(250,204,21,0.5)';
+    ctx.lineWidth = 1.5;
+    ctx.stroke();
+
+    // شعاع 2: موازٍ للمحور ثم ينكسر مارًا بالبؤرة
+    ctx.beginPath();
+    ctx.moveTo(objX, cy - objH);
+    ctx.lineTo(cx, cy - objH);
+    if (isReal) {
+      const slope = objH / fPx;
+      ctx.lineTo(imgX, cy - objH + (imgX - cx) * slope);
+    } else {
+      // المنكسر يمر بالبؤرة F' ويستمر
+      const endX2 = W - 20;
+      const slope2 = objH / fPx;
+      ctx.lineTo(endX2, cy - objH + (endX2 - cx) * slope2);
+      // امتداد للخلف
+      ctx.setLineDash([6, 4]);
+      ctx.moveTo(cx, cy - objH);
+      ctx.lineTo(imgX, imgTopY);
+      ctx.setLineDash([]);
+    }
+    ctx.strokeStyle = 'rgba(34,197,94,0.5)';
+    ctx.lineWidth = 1.5;
+    ctx.stroke();
+
+    // رسم الخيال
+    if (imgX > 10 && imgX < W - 10 && Math.abs(imgTopY - cy) > 3) {
+      ctx.beginPath();
+      ctx.moveTo(imgX, cy);
+      ctx.lineTo(imgX, imgTopY);
+      ctx.strokeStyle = '#22C55E';
+      ctx.lineWidth = 3;
+      ctx.stroke();
+      // رأس السهم
+      const arrowDir = imgTopY > cy ? 1 : -1;
+      ctx.beginPath();
+      ctx.moveTo(imgX - 6, imgTopY - arrowDir * 10);
+      ctx.lineTo(imgX, imgTopY);
+      ctx.lineTo(imgX + 6, imgTopY - arrowDir * 10);
+      ctx.strokeStyle = '#22C55E';
+      ctx.lineWidth = 3;
+      ctx.stroke();
+      ctx.fillStyle = '#22C55E';
+      ctx.font = '700 12px Tajawal';
+      ctx.textAlign = 'center';
+      const labelY = imgTopY > cy ? imgTopY + 20 : imgTopY - 14;
+      ctx.fillText('الخيال', imgX, labelY);
+    }
+
+  } else {
+    // ========== العدسة المقعّرة ==========
+    const fn = -f; // البعد البؤري سالب
+    const xCm = objDist;
+    const di = (fn * xCm) / (xCm - fn); // سالب دائمًا
+    const diPx = Math.abs(di) * scale;
+    const mag = Math.abs(di / xCm);
+    const imgH = objH * mag;
+    const imgX = cx - diPx; // نفس جهة الجسم
+    const imgTopY = cy - imgH;
+
+    // شعاع 1: يمر بالمركز (يستمر)
+    ctx.beginPath();
+    ctx.moveTo(objX, cy - objH);
+    ctx.lineTo(cx, cy);
+    ctx.strokeStyle = 'rgba(250,204,21,0.5)';
+    ctx.lineWidth = 1.5;
+    ctx.stroke();
+    // امتداد للخلف
+    ctx.setLineDash([6, 4]);
+    ctx.beginPath();
+    ctx.moveTo(cx, cy);
+    ctx.lineTo(imgX, imgTopY);
+    ctx.strokeStyle = 'rgba(250,204,21,0.3)';
+    ctx.lineWidth = 1;
+    ctx.stroke();
+    ctx.setLineDash([]);
+
+    // شعاع 2: موازٍ للمحور - ينكسر بحيث يبدو كأنه جاء من البؤرة الوهمية
+    ctx.beginPath();
+    ctx.moveTo(objX, cy - objH);
+    ctx.lineTo(cx, cy - objH);
+    // بعد العدسة: يتباعد ويبدو أنه جاء من F (التي تقع على نفس جهة الجسم)
+    const slope2 = objH / fPx; // الميل بعيدًا عن المحور
+    const endX2 = W - 20;
+    ctx.lineTo(endX2, cy - objH - (endX2 - cx) * slope2);
+    ctx.strokeStyle = 'rgba(34,197,94,0.5)';
+    ctx.lineWidth = 1.5;
+    ctx.stroke();
+    // امتداد للخلف إلى نقطة التقاء
+    ctx.setLineDash([6, 4]);
+    ctx.beginPath();
+    ctx.moveTo(cx, cy - objH);
+    ctx.lineTo(imgX, imgTopY);
+    ctx.strokeStyle = 'rgba(34,197,94,0.3)';
+    ctx.lineWidth = 1;
+    ctx.stroke();
+    ctx.setLineDash([]);
+
+    // رسم الخيال الوهمي
+    if (imgX > 10) {
+      ctx.beginPath();
+      ctx.moveTo(imgX, cy);
+      ctx.lineTo(imgX, imgTopY);
+      ctx.strokeStyle = '#A78BFA';
+      ctx.lineWidth = 3;
+      ctx.setLineDash([4, 3]);
+      ctx.stroke();
+      ctx.setLineDash([]);
+      // رأس السهم
+      ctx.beginPath();
+      ctx.moveTo(imgX - 6, imgTopY + 10);
+      ctx.lineTo(imgX, imgTopY);
+      ctx.lineTo(imgX + 6, imgTopY + 10);
+      ctx.strokeStyle = '#A78BFA';
+      ctx.lineWidth = 3;
+      ctx.stroke();
+      ctx.fillStyle = '#A78BFA';
+      ctx.font = '700 12px Tajawal';
+      ctx.textAlign = 'center';
+      ctx.fillText('الخيال (وهمي)', imgX, imgTopY - 10);
+    }
+  }
+}
+
+// ========== تهيئة التطبيق ==========
+function init() {
+  buildDots();
+  buildTOC();
+  updateNav();
+
+  // أحداث الأزرار
+  document.getElementById('themeToggle').addEventListener('click', toggleTheme);
+  document.getElementById('tocToggle').addEventListener('click', openSidebar);
+  document.getElementById('sidebarClose').addEventListener('click', closeSidebar);
+  document.getElementById('sidebarOverlay').addEventListener('click', closeSidebar);
+  document.getElementById('continuousToggle').addEventListener('click', toggleContinuousMode);
+
+  // لوحة المفاتيح
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'ArrowLeft') nextPage();
+    if (e.key === 'ArrowRight') prevPage();
+    if (e.key === 'Escape') closeSidebar();
+  });
+
+  // تهيئة كانفاس الغلاف
+  initCoverCanvas();
+
+  // التحقق من تفضيل الوضع الليلي
+  if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+    toggleTheme();
+  }
+
+  // إعادة تهيئة الكانفاس عند تغيير الحجم
+  let resizeTimer;
+  window.addEventListener('resize', () => {
+    clearTimeout(resizeTimer);
+    resizeTimer = setTimeout(() => {
+      if (continuousMode) {
+        initCoverCanvas();
+        initRefractionCanvas(); updateRefraction();
+        initTIRCanvas(); updateTIR();
+        initLensCanvas(); updateLens();
+        return;
+      }
+      if (currentPage === 0) initCoverCanvas();
+      if (currentPage === 3) { initRefractionCanvas(); updateRefraction(); }
+      if (currentPage === 6) { initTIRCanvas(); updateTIR(); }
+      if (currentPage === 9) { initLensCanvas(); updateLens(); }
+    }, 300);
+  });
+}
+
+// بدء التطبيق عند تحميل الصفحة
+document.addEventListener('DOMContentLoaded', init);
+</script>
+</body>
+</html>
