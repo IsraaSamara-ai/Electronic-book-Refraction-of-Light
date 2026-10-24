@@ -16,8 +16,24 @@ st.set_page_config(
     initial_sidebar_state="collapsed",
 )
 
-# ---------- مسار ملف الكتاب التفاعلي ----------
-HTML_FILE = Path(__file__).parent / "assets" / "refraction_of_light_ch4.html"
+# ---------- البحث عن ملف الكتاب التفاعلي ----------
+BASE_DIR = Path(__file__).parent
+
+
+def find_html_file():
+    """يبحث عن ملف HTML في assets ثم في المجلد الرئيسي (بأي اسم)."""
+    preferred = BASE_DIR / "assets" / "refraction_of_light_ch4.html"
+    if preferred.exists():
+        return preferred
+    for folder in (BASE_DIR / "assets", BASE_DIR):
+        if folder.exists():
+            files = sorted(folder.glob("*.html"))
+            if files:
+                return files[0]
+    return None
+
+
+HTML_FILE = find_html_file()
 
 
 @st.cache_data(show_spinner=False)
@@ -40,7 +56,11 @@ st.markdown(
 )
 
 # ---------- عرض الكتاب التفاعلي ----------
-if HTML_FILE.exists():
+if HTML_FILE is not None:
     components.html(load_html(HTML_FILE), height=900, scrolling=False)
 else:
-    st.error(f"لم يتم العثور على الملف: {HTML_FILE}")
+    st.error(
+        "لم يتم العثور على ملف HTML في المستودع. "
+        "ارفعي الملف داخل مجلد assets أو في المجلد الرئيسي بجانب app.py."
+    )
+    st.write("الملفات الموجودة في المجلد الرئيسي:", [p.name for p in BASE_DIR.iterdir()])
